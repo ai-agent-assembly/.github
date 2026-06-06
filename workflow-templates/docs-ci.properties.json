@@ -1,0 +1,6 @@
+{
+  "name": "Docs CI (Agent Assembly playbook)",
+  "description": "markdownlint + lychee link check with path-scoped triggers, PR-only concurrency cancel, least-privilege permissions, job timeouts, and a reusable CI Success gate (docs build Linux-only, so no OS matrix).",
+  "iconName": "book",
+  "categories": ["Documentation", "Continuous integration"]
+}

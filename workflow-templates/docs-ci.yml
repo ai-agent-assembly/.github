@@ -1,0 +1,63 @@
+# Org starter: Docs CI encoding the 8-principle playbook.
+# Documentation builds are Linux-only by nature, so there is no OS matrix;
+# the remaining seven principles still apply. See the org CONTRIBUTING.md
+# "CI/CD playbook" section and the measured-result evidence in
+# agent-assembly's docs/src/benchmarks/ci-cd-pipeline-performance.md.
+name: CI
+
+on:
+  push:
+    branches: [$default-branch]
+    tags: ["v*"]
+    paths:
+      - "**/*.md"
+      - "**/*.mdx"
+      - "docs/**"
+      - ".github/workflows/**"
+  pull_request:
+    paths:
+      - "**/*.md"
+      - "**/*.mdx"
+      - "docs/**"
+      - ".github/workflows/**"
+
+# Principle: cancel superseded runs — but only on PRs, never on
+# $default-branch / tag pushes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Principle: least privilege at the top level.
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: markdownlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v18
+        with:
+          globs: "**/*.md"
+
+  links:
+    name: link check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--no-progress './**/*.md'"
+          fail: true
+
+  # Principle: single aggregate gate.
+  ci-success:
+    name: CI Success
+    if: always()
+    needs: [lint, links]
+    uses: ai-agent-assembly/.github/.github/workflows/ci-success.yml@master
+    with:
+      needs-json: ${{ toJSON(needs) }}
