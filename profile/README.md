@@ -93,7 +93,6 @@ curl -fsSL https://get.agentassembly.dev | sh
 ### Deployment flexibility
 
 1. Local Dev Mode (zero-config, OSS)
-2. Self-hosted Control Plane (enterprise on-prem)
-3. SaaS Cloud
+2. SaaS Cloud (managed enterprise control plane)
 
 > Prioritize these three above the fold: lowest-intrusion integration, Secret Injection, and Human-in-the-loop Gate.
