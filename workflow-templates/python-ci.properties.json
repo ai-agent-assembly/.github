@@ -1,0 +1,6 @@
+{
+  "name": "Python CI (Agent Assembly playbook)",
+  "description": "uv-based ruff + mypy + pytest with path-scoped triggers, PR-only concurrency cancel, Linux-default matrix (multi-OS on default branch / tags), least-privilege permissions, job timeouts, and a reusable CI Success gate.",
+  "iconName": "python",
+  "categories": ["Python", "Continuous integration"]
+}
