@@ -97,6 +97,46 @@ PRs always target `master`, even when your branch was created from another featu
 
 Keep PRs focused. One concern per PR — don't bundle unrelated changes. If a single ticket needs more than ~500 lines of diff, split it into a sequence of stacked PRs.
 
+## Continuous integration — the 8-principle playbook
+
+Every repo's CI is hand-rolled, which is why the same gaps recur. To stop
+retrofitting, the org `.github` repo ships **starter workflows** that bake these
+eight principles in, so new and empty repos start compliant. Pick one from the
+**Actions → New workflow** screen (look for "… (Agent Assembly playbook)"):
+`Rust CI`, `Node / TypeScript CI`, `Python CI`, `Go CI`, or `Docs CI`.
+
+The reference rationale and the **measured-result evidence** (before/after CI
+minutes and wall-clock) live in `agent-assembly`'s
+[`docs/src/benchmarks/ci-cd-pipeline-performance.md`](https://github.com/AI-agent-assembly/agent-assembly/blob/master/docs/src/benchmarks/ci-cd-pipeline-performance.md).
+
+| # | Principle | How the starters apply it |
+|---|---|---|
+| 1 | **Path-scoped triggers** | `on.push` / `on.pull_request` list `paths:` so doc-only or unrelated edits don't spend CI minutes. |
+| 2 | **Concurrency cancel** | `concurrency` cancels superseded runs **only on PRs** (`cancel-in-progress: ${{ github.event_name == 'pull_request' }}`) — `$default-branch` and tag pushes always run to completion. |
+| 3 | **Single `CI Success` gate** | An aggregate job (`needs: [...]` + `if: always()`) is the one required check. Branch protection requires only `CI Success`, not every job. |
+| 4 | **Linux-default matrices** | The OS matrix is `["ubuntu-latest"]` on PRs and only fans out to macOS/Windows on `$default-branch` / tag pushes. |
+| 5 | **Least-privilege permissions** | A top-level `permissions: contents: read`; jobs widen scope only when they must. |
+| 6 | **Job timeouts** | Every job sets `timeout-minutes` so a hung step can't burn the runner budget. |
+| 7 | **Reusable gate** | The `CI Success` logic is a reusable workflow (`ci-success.yml`, `on: workflow_call`); repos `uses:` it instead of copy-pasting (see below). |
+| 8 | **Cache the toolchain** | Each starter caches its package/build artifacts (`Swatinem/rust-cache`, `setup-node … cache: pnpm`, `setup-uv`, `setup-go`) to keep warm runs fast. |
+
+### Reusable `CI Success` gate
+
+Instead of copy-pasting the aggregate gate, call the org reusable workflow:
+
+```yaml
+ci-success:
+  name: CI Success
+  if: always()
+  needs: [lint, test]
+  uses: ai-agent-assembly/.github/.github/workflows/ci-success.yml@master
+  with:
+    needs-json: ${{ toJSON(needs) }}
+```
+
+It fails if any upstream job's `result` is `failure` or `cancelled`; skipped
+jobs are non-blocking. Make `CI Success` the only required status check.
+
 ## Code review
 
 - At least **one approval** is required before merge.
