@@ -1,0 +1,53 @@
+# Reusable aggregate "CI Success" gate.
+#
+# Branch-protection rules should require a single check named "CI Success"
+# instead of every individual job. Each repo's CI workflow calls this once,
+# passing the `needs.*.result` values of its real jobs as a JSON string, and
+# this workflow fails unless every upstream job succeeded.
+#
+# Usage from a caller workflow:
+#
+#   ci-success:
+#     name: CI Success
+#     if: always()
+#     needs: [lint, test, build]
+#     uses: ai-agent-assembly/.github/.github/workflows/ci-success.yml@master
+#     with:
+#       needs-json: ${{ toJSON(needs) }}
+#
+# The gate passes only when no upstream job has a result of `failure` or
+# `cancelled`. Skipped jobs are treated as non-blocking.
+name: CI Success
+
+on:
+  workflow_call:
+    inputs:
+      needs-json:
+        description: >-
+          JSON object of the caller's `needs` context, i.e. ${{ toJSON(needs) }}.
+          The gate inspects each job's `result` field.
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  ci-success:
+    name: CI Success
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify no upstream job failed or was cancelled
+        env:
+          NEEDS_JSON: ${{ inputs.needs-json }}
+        run: |
+          echo "Upstream job results:"
+          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "  \(.key): \(.value.result)"'
+          failed=$(echo "$NEEDS_JSON" | jq -r \
+            '[to_entries[] | select(.value.result == "failure" or .value.result == "cancelled") | .key] | join(", ")')
+          if [ -n "$failed" ]; then
+            echo "::error::CI Success gate failed. Blocking jobs: ${failed}"
+            exit 1
+          fi
+          echo "All upstream jobs succeeded or were skipped. CI Success."
