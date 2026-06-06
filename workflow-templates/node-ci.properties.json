@@ -1,0 +1,6 @@
+{
+  "name": "Node / TypeScript CI (Agent Assembly playbook)",
+  "description": "pnpm lint + typecheck + test with path-scoped triggers, PR-only concurrency cancel, Linux-default matrix (multi-OS on default branch / tags), least-privilege permissions, job timeouts, and a reusable CI Success gate.",
+  "iconName": "nodejs",
+  "categories": ["Node", "TypeScript", "JavaScript", "Continuous integration"]
+}

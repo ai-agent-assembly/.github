@@ -1,0 +1,69 @@
+# Org starter: Go CI encoding the 8-principle playbook.
+# See the org CONTRIBUTING.md "CI/CD playbook" section for the rationale and
+# the measured-result evidence in agent-assembly's
+# docs/src/benchmarks/ci-cd-pipeline-performance.md.
+name: CI
+
+on:
+  push:
+    branches: [$default-branch]
+    tags: ["v*"]
+    paths:
+      - "**/*.go"
+      - "**/go.mod"
+      - "**/go.sum"
+      - ".github/workflows/**"
+  pull_request:
+    paths:
+      - "**/*.go"
+      - "**/go.mod"
+      - "**/go.sum"
+      - ".github/workflows/**"
+
+# Principle: cancel superseded runs — but only on PRs, never on
+# $default-branch / tag pushes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Principle: least privilege at the top level.
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: golangci/golangci-lint-action@v6
+
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # Principle: Linux-default. Multi-OS only on $default-branch / tag
+        # pushes; PRs run Linux only.
+        os: ${{ fromJSON((github.event_name == 'push' && (github.ref == 'refs/heads/$default-branch' || startsWith(github.ref, 'refs/tags/'))) && '["ubuntu-latest", "macos-latest", "windows-latest"]' || '["ubuntu-latest"]') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - run: go test ./...
+
+  # Principle: single aggregate gate.
+  ci-success:
+    name: CI Success
+    if: always()
+    needs: [lint, test]
+    uses: ai-agent-assembly/.github/.github/workflows/ci-success.yml@master
+    with:
+      needs-json: ${{ toJSON(needs) }}
