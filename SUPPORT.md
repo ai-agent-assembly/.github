@@ -7,7 +7,7 @@
 
 ## Community
 
-- **GitHub Discussions** — <https://github.com/AI-agent-assembly/agent-assembly/discussions> for questions, ideas, and show-and-tell
+- **GitHub Discussions** — <https://github.com/ai-agent-assembly/agent-assembly/discussions> for questions, ideas, and show-and-tell
 - **Discord** — community chat *(invite link pending server setup)*
 
 ## Issues
