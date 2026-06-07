@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing! AI Agent Assembly is an open-source project and we welcome contributions of all sizes — bug reports, documentation fixes, new features, performance improvements, and more.
 
-This guide describes the org-wide conventions that apply across all repositories under [AI-agent-assembly](https://github.com/AI-agent-assembly). For repo-specific setup (build commands, test runners, language toolchains), see the `CONTRIBUTING.md` in each individual repo — it takes precedence over this file where they differ.
+This guide describes the org-wide conventions that apply across all repositories under [ai-agent-assembly](https://github.com/ai-agent-assembly). For repo-specific setup (build commands, test runners, language toolchains), see the `CONTRIBUTING.md` in each individual repo — it takes precedence over this file where they differ.
 
 ## Prerequisites
 
@@ -107,7 +107,7 @@ eight principles in, so new and empty repos start compliant. Pick one from the
 
 The reference rationale and the **measured-result evidence** (before/after CI
 minutes and wall-clock) live in `agent-assembly`'s
-[`docs/src/benchmarks/ci-cd-pipeline-performance.md`](https://github.com/AI-agent-assembly/agent-assembly/blob/master/docs/src/benchmarks/ci-cd-pipeline-performance.md).
+[`docs/src/benchmarks/ci-cd-pipeline-performance.md`](https://github.com/ai-agent-assembly/agent-assembly/blob/master/docs/src/benchmarks/ci-cd-pipeline-performance.md).
 
 | # | Principle | How the starters apply it |
 |---|---|---|
