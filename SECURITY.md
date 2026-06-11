@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in any AI Agent Assembly repository, please report it **privately** by emailing **security@agentassembly.dev**. Do not open a public GitHub issue or discussion for security issues.
+If you discover a security vulnerability in any AI Agent Assembly repository, please report it **privately** by emailing **security@agent-assembly.dev**. Do not open a public GitHub issue or discussion for security issues.
 
 ## Supported Versions
 
