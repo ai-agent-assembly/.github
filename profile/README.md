@@ -27,7 +27,7 @@ AI Agent Assembly is an open-source governance platform for AI agents. It enforc
 #### Homebrew (macOS, Linux)
 
 ```sh
-brew install agent-assembly/tap/aasm
+brew install ai-agent-assembly/homebrew-agent-assembly/aasm
 ```
 
 #### Python — pip, uv, or poetry
@@ -61,11 +61,14 @@ yarn add @agent-assembly/sdk
 > A published container image is coming soon. No image is available on
 > `ghcr.io` yet.
 
-#### curl one-line installer
+#### curl one-line installer (CLI)
 
 ```sh
-curl -fsSL https://get.agentassembly.dev | sh
+curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/master/scripts/install-cli.sh | sh
 ```
+
+> A short hosted alias (`https://install.ai-agent-assembly.dev`) is planned but
+> not yet live — use the `raw.githubusercontent.com` URL above for now.
 
 ## Release and Homebrew Notes
 
