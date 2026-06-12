@@ -58,9 +58,8 @@ yarn add @agent-assembly/sdk
 
 #### Docker
 
-```sh
-docker pull ghcr.io/agent-assembly/python:latest
-```
+> A published container image is coming soon. No image is available on
+> `ghcr.io` yet.
 
 #### curl one-line installer
 
