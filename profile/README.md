@@ -37,13 +37,13 @@ brew install ai-agent-assembly/homebrew-agent-assembly/aasm
 
 ```sh
 # pip
-pip install agent-assembly-python
+pip install agent-assembly
 
 # uv
-uv add agent-assembly-python
+uv add agent-assembly
 
 # poetry
-poetry add agent-assembly-python
+poetry add agent-assembly
 ```
 
 #### Node.js — pnpm (recommended), npm, or yarn
@@ -57,6 +57,12 @@ npm install @agent-assembly/sdk
 
 # yarn
 yarn add @agent-assembly/sdk
+```
+
+#### Go — go get
+
+```sh
+go get github.com/ai-agent-assembly/go-sdk
 ```
 
 #### Docker
