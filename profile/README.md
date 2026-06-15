@@ -81,8 +81,8 @@ curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/mas
 
 ## Release and Homebrew Notes
 
-- `agent-assembly` is currently in a pre-stable alpha channel.
-- Homebrew tap has `Formula/aasm.rb` with `version "0.0.1"`, but checksum placeholders are still all zero, so this should be treated as pre-stable/bootstrap state until real release artifacts and checksums are published.
+- `agent-assembly` is on a pre-stable **beta** channel — see the [Core release badge](https://github.com/ai-agent-assembly/agent-assembly/releases) above for the current version.
+- The Homebrew tap's `Formula/aasm.rb` now ships real, published `sha256` checksums for the released `aasm` artifacts — the earlier zero-checksum bootstrap state is obsolete.
 
 ## Full Production Highlights
 
