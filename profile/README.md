@@ -107,3 +107,18 @@ curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/mas
 2. SaaS Cloud (managed enterprise control plane)
 
 > Prioritize these three above the fold: lowest-intrusion integration, Secret Injection, and Human-in-the-loop Gate.
+
+## Documentation and Community
+
+Start at the org profile, then follow these for every production repository:
+
+| Resource | Link |
+| --- | --- |
+| 📚 Documentation site (canonical) | <https://ai-agent-assembly.github.io/agent-assembly-docs/> |
+| 🤝 Contributing | [CONTRIBUTING.md](https://github.com/ai-agent-assembly/.github/blob/master/CONTRIBUTING.md) |
+| 🔒 Security policy | [SECURITY.md](https://github.com/ai-agent-assembly/.github/blob/master/SECURITY.md) — report privately to `security@agent-assembly.dev` |
+| 💬 Support and questions | [GitHub Discussions](https://github.com/ai-agent-assembly/agent-assembly/discussions) |
+
+> Each repository README links back to this profile and out to the canonical
+> documentation site, so you can navigate from the org entrypoint to core
+> runtime, SDKs, Homebrew tap, docs, and spec — and from any repo back here.
