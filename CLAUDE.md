@@ -82,6 +82,22 @@ rather than waiting on CI. Never `--no-verify`; never force-push.
 - **The Protocol Specification stays in the `agent-assembly` monorepo** — not in the
   archived `agent-assembly-spec` repo.
 
+## AI tooling: rules, skills, and Codex parity
+
+- Claude Code reads this `CLAUDE.md`; Codex reads the sibling `AGENTS.md` at the
+  repo root instead — keep both files in sync on org-wide policy (commit/branch/PR
+  conventions, remote-naming, CI reality, JIRA, project policy). `AGENTS.md` is the
+  Codex-facing version of this baseline, written to be self-sufficient since Codex
+  does not read `CLAUDE.md`.
+- `.claude/rules/` and `.claude/skills/` are reserved for shared, reusable rule and
+  skill definitions that apply across all `ai-agent-assembly` repos. Both are empty
+  as of this commit — AAASM-3941 and AAASM-3942 populate them next. Once populated,
+  treat them as an index: browse the directory rather than assuming a specific
+  filename exists.
+- See `.claude/WORKSPACE.md` for how these org-level files get installed into a
+  contributor's local multi-repo workspace (bootstrap/validation are tracked as
+  AAASM-3943/AAASM-3944).
+
 ## Documentation conventions — document the WHY, not the WHAT
 
 Comments and docstrings capture intent the code cannot: rationale, constraints,
