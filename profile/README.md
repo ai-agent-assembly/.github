@@ -114,7 +114,7 @@ Start at the org profile, then follow these for every production repository:
 
 | Resource | Link |
 | --- | --- |
-| 📚 Documentation site (canonical) | <https://ai-agent-assembly.github.io/agent-assembly-docs/> |
+| 📚 Documentation site (canonical) | <https://docs.agent-assembly.com/> |
 | 🤝 Contributing | [CONTRIBUTING.md](https://github.com/ai-agent-assembly/.github/blob/master/CONTRIBUTING.md) |
 | 🔒 Security policy | [SECURITY.md](https://github.com/ai-agent-assembly/.github/blob/master/SECURITY.md) — report privately to `security@agent-assembly.dev` |
 | 💬 Support and questions | [GitHub Discussions](https://github.com/ai-agent-assembly/agent-assembly/discussions) |
