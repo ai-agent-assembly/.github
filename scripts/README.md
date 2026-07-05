@@ -74,9 +74,43 @@ Every run ends with a per-item report line (`[created]`, `[updated]`,
 `[skipped]`, or `[failed]`) plus aggregate counts. The script exits non-zero
 if any item failed.
 
-## `validate-ai-workspace.sh` (AAASM-3944, not yet built)
+## `validate-ai-workspace.sh` (AAASM-3944)
 
-Planned companion script that will check an installed workspace (and each
-selected repo inside it) against `.claude/WORKSPACE.md`'s expected layout,
-reporting missing files, broken symlinks, and visible repo-local overrides. It
-will live alongside `bootstrap-ai-workspace.sh` in this directory once built.
+Checks an installed workspace root (and, optionally, one or more repo
+checkouts inside it) against `.claude/WORKSPACE.md`'s expected layout,
+reporting missing files, broken symlinks, and visible local overrides.
+
+### Usage
+
+```bash
+./scripts/validate-ai-workspace.sh ~/ai-agent-assembly
+```
+
+Add repo paths to also get a lightweight, informational check for each repo's
+own `.claude/CLAUDE.md` and `AGENTS.md`:
+
+```bash
+./scripts/validate-ai-workspace.sh ~/ai-agent-assembly ~/ai-agent-assembly/agent-assembly ~/ai-agent-assembly/python-sdk
+```
+
+### What it checks
+
+For each of `CLAUDE.md`, `AGENTS.md`, `.claude/rules/`, and `.claude/skills/`
+at the workspace root, it reports one of:
+
+- **Missing** — the item does not exist.
+- **Broken symlink** — the item is a symlink whose target does not exist.
+- **Local override** — the item exists but isn't a symlink back to a
+  recognized `.github` clone (a contributor's intentional local override, per
+  the override model in `.claude/WORKSPACE.md`). Reported for visibility, not
+  as an error.
+- **OK** — correctly symlinked back to a `.github` clone.
+
+It also sweeps the workspace's `.claude/` tree for any other broken symlinks
+(e.g. under `.claude/commands/`).
+
+### Exit codes
+
+`0` if everything is present and either correctly symlinked or a recognized
+local override (overrides do not fail validation). `1` if anything is missing
+or a symlink is broken. Safe to wire into CI as a gate.
