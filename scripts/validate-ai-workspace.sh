@@ -11,7 +11,10 @@
 # Checks the workspace root for CLAUDE.md, AGENTS.md, .claude/rules/, and
 # .claude/skills/, classifying each as: missing, a broken symlink, a local
 # override (present but not a symlink back to a recognized .github clone),
-# or correctly symlinked (OK). Local overrides are reported for visibility
+# or correctly symlinked (OK). .claude/rules/ and .claude/skills/ are checked
+# per file (one classification per file inside them), not as a whole
+# directory, so overriding a single file is detected without flagging every
+# other file in that directory. Local overrides are reported for visibility
 # but do not fail validation — see the override model in .claude/WORKSPACE.md.
 #
 # Any extra repo-path arguments get a lightweight, informational check for
@@ -110,26 +113,66 @@ check_item() {
   MISSING+=("${label}: ${target} does not exist")
 }
 
+# check_dir_contents <target-dir> <label>
+# .claude/rules/ and .claude/skills/ are installed as a real directory
+# containing one symlink per file (see bootstrap-ai-workspace.sh's
+# ensure_dir_of_symlinks), so each file must be classified individually —
+# checking the directory as a single unit would never detect a single
+# overridden file inside it. Falls back to check_item's whole-target logic
+# if the directory itself turns out to be an old-style whole-directory
+# symlink (pre-AAASM-4177 install), for backward compatibility.
+check_dir_contents() {
+  local target_dir="$1"
+  local label="$2"
+
+  if [[ -L "${target_dir}" ]]; then
+    check_item "${target_dir}" "${label}"
+    return
+  fi
+
+  if [[ ! -d "${target_dir}" ]]; then
+    MISSING+=("${label}: ${target_dir} does not exist")
+    return
+  fi
+
+  local found_any=0
+  local entry name
+  for entry in "${target_dir}"/*; do
+    [[ -e "${entry}" || -L "${entry}" ]] || continue
+    found_any=1
+    name="$(basename "${entry}")"
+    check_item "${entry}" "${label}/${name}"
+  done
+
+  if [[ "${found_any}" -eq 0 ]]; then
+    MISSING+=("${label}: ${target_dir} exists but is empty")
+  fi
+}
+
 echo "Validating AI onboarding workspace: ${WORKSPACE_ROOT}"
 echo
 
 check_item "${WORKSPACE_ROOT}/CLAUDE.md" "CLAUDE.md"
 check_item "${WORKSPACE_ROOT}/AGENTS.md" "AGENTS.md"
-check_item "${WORKSPACE_ROOT}/.claude/rules" ".claude/rules"
-check_item "${WORKSPACE_ROOT}/.claude/skills" ".claude/skills"
+check_dir_contents "${WORKSPACE_ROOT}/.claude/rules" ".claude/rules"
+check_dir_contents "${WORKSPACE_ROOT}/.claude/skills" ".claude/skills"
 
 # --- Generic broken-symlink sweep under the workspace's .claude/ tree -------
-# Catches broken symlinks beyond the four expected items above (e.g. a
+# Catches broken symlinks beyond the items already checked above (e.g. a
 # contributor's own additions under .claude/commands/). `find` does not
-# descend into symlinked directories by default, so this reports symlink
-# dirents directly under .claude/ without re-traversing .claude/rules or
-# .claude/skills (already checked above).
+# descend into symlinked directories by default, so a whole-directory
+# old-style .claude/rules or .claude/skills symlink is naturally excluded;
+# for the new per-file layout (real directories), explicitly skip everything
+# under them since check_dir_contents already classified each file.
 if [[ -d "${WORKSPACE_ROOT}/.claude" ]]; then
   while IFS= read -r link; do
     [[ -z "${link}" ]] && continue
-    if [[ "${link}" == "${WORKSPACE_ROOT}/.claude/rules" || "${link}" == "${WORKSPACE_ROOT}/.claude/skills" ]]; then
-      continue
-    fi
+    case "${link}" in
+      "${WORKSPACE_ROOT}/.claude/rules" | "${WORKSPACE_ROOT}/.claude/rules/"* | \
+      "${WORKSPACE_ROOT}/.claude/skills" | "${WORKSPACE_ROOT}/.claude/skills/"*)
+        continue
+        ;;
+    esac
     if [[ ! -e "${link}" ]]; then
       BROKEN+=("extra symlink: ${link} -> $(readlink "${link}") (target does not exist)")
     fi
