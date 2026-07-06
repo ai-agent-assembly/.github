@@ -89,11 +89,11 @@ rather than waiting on CI. Never `--no-verify`; never force-push.
   conventions, remote-naming, CI reality, JIRA, project policy). `AGENTS.md` is the
   Codex-facing version of this baseline, written to be self-sufficient since Codex
   does not read `CLAUDE.md`.
-- `.claude/rules/` and `.claude/skills/` are reserved for shared, reusable rule and
-  skill definitions that apply across all `ai-agent-assembly` repos. `.claude/rules/`
-  is populated as of AAASM-3941; `.claude/skills/` is still empty as of this commit —
-  AAASM-3942 populates it next. Treat each directory as an index: browse it rather
-  than assuming a specific filename exists.
+- `.claude/rules/` and `.claude/skills/` are shared, reusable rule and skill
+  definitions that apply across all `ai-agent-assembly` repos — both directories
+  are populated (`.claude/rules/` since AAASM-3941, `.claude/skills/` since
+  AAASM-3942). Treat each directory as an index: browse it rather than assuming
+  a specific filename exists, since new files get added over time.
 - See `.claude/WORKSPACE.md` for how these org-level files get installed into a
   contributor's local multi-repo workspace (bootstrap/validation are tracked as
   AAASM-3943/AAASM-3944).
