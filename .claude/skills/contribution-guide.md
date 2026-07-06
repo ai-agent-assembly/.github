@@ -11,7 +11,10 @@ ready to implement and land a change in any `ai-agent-assembly` repo.
    be worked concurrently. Remove the worktree after the PR merges.
 2. **Implement.** Change only what the ticket describes. Read the target
    repo's `.claude/CLAUDE.md` for architecture constraints before touching
-   unfamiliar code.
+   unfamiliar code. Before touching anything that handles secrets,
+   credentials, user input, or shells out to external commands, re-read
+   `.claude/rules/01-security.md` — it's the one rule worth checking per
+   ticket, not just once at onboarding.
 3. **Commit atomically.** One logical unit per commit — one new file, one
    function, one property change. Format:
    ```
