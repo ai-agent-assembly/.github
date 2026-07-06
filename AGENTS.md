@@ -1,15 +1,16 @@
-# CLAUDE.md — org-wide baseline (ai-agent-assembly)
+# AGENTS.md — org-wide baseline (ai-agent-assembly)
 
-Canonical, shared context for Claude Code (and humans) across **all** repos in the
-[`ai-agent-assembly`](https://github.com/orgs/ai-agent-assembly/repositories) org.
-Each repo also has its own `.claude/CLAUDE.md` with repo-specific commands and
-gotchas; those files **reference this baseline** instead of repeating it.
+Compact, always-on instructions for Codex (and any other `AGENTS.md`-reading tool)
+across **all** repos in the [`ai-agent-assembly`](https://github.com/orgs/ai-agent-assembly/repositories)
+org. This is the Codex-facing counterpart to this repo's `CLAUDE.md` — the two are
+kept in sync on shared, org-wide policy. Each repo may have its own `AGENTS.md`
+with repo-specific commands and gotchas; that file takes precedence when you are
+working inside that repo, and it should reference this baseline instead of
+repeating it.
 
-> **Note — this is a convention, not inheritance.** GitHub does not auto-apply a
-> CLAUDE.md across repos. Claude Code reads the CLAUDE.md in the repo you are working
-> in (plus your machine's global `~/.claude/CLAUDE.md`). This file is the single
-> source of truth that per-repo files link to; keep org-universal facts here and
-> repo-specific facts in each repo's `.claude/CLAUDE.md`.
+> This file is intentionally an entry point, not a knowledge dump. If a repo has
+> its own `AGENTS.md` or `.claude/CLAUDE.md`, read that first — it overrides or
+> extends what's here for that repo.
 
 ## The product in one paragraph
 
@@ -36,7 +37,10 @@ ships the `aasm` binary. See `profile/README.md` for the full repo map.
 | `.github` / `.github-private` | Org community-health, reusable workflow-templates, this baseline |
 | `agent-assembly-spec` | **Archived** — the protocol spec lives in the `agent-assembly` monorepo |
 
-## Universal conventions (each repo's CONTRIBUTING.md is authoritative)
+## Conventions that apply regardless of which AI tool is used
+
+These are org policy, not Claude-Code-specific — follow them from Codex the same
+as from Claude Code:
 
 - **Commits:** `<emoji> (<scope>): <imperative summary>` (gitmoji.dev). One logical
   unit per commit; bisectable; utils/mocks/tests are separate preceding commits.
@@ -82,38 +86,20 @@ rather than waiting on CI. Never `--no-verify`; never force-push.
 - **The Protocol Specification stays in the `agent-assembly` monorepo** — not in the
   archived `agent-assembly-spec` repo.
 
-## AI tooling: rules, skills, and Codex parity
+## Rules & skills (Claude-Code-specific tooling, org policy applies to Codex too)
 
-- Claude Code reads this `CLAUDE.md`; Codex reads the sibling `AGENTS.md` at the
-  repo root instead — keep both files in sync on org-wide policy (commit/branch/PR
-  conventions, remote-naming, CI reality, JIRA, project policy). `AGENTS.md` is the
-  Codex-facing version of this baseline, written to be self-sufficient since Codex
-  does not read `CLAUDE.md`.
-- `.claude/rules/` and `.claude/skills/` are reserved for shared, reusable rule and
-  skill definitions that apply across all `ai-agent-assembly` repos. Both are empty
-  as of this commit — AAASM-3941 and AAASM-3942 populate them next. Once populated,
-  treat them as an index: browse the directory rather than assuming a specific
-  filename exists.
-- See `.claude/WORKSPACE.md` for how these org-level files get installed into a
-  contributor's local multi-repo workspace (bootstrap/validation are tracked as
-  AAASM-3943/AAASM-3944).
+- `.claude/rules/` and `.claude/skills/` hold reusable rule and skill definitions
+  written for Claude Code's skill system. They are reserved but empty as of this
+  commit — AAASM-3941 and AAASM-3942 populate them. Codex has no native equivalent
+  loader for these files, but where a rule/skill encodes **org policy** (e.g. commit
+  conventions, PR structure, CI triage) rather than Claude-Code mechanics, that
+  policy still applies to work done via Codex — read the file directly if in doubt.
+- See `.claude/WORKSPACE.md` for how this baseline and those directories get
+  installed into a contributor's local multi-repo workspace.
 
-## Documentation conventions — document the WHY, not the WHAT
+## Full detail
 
-Comments and docstrings capture intent the code cannot: rationale, constraints,
-invariants, non-obvious decisions. Restating what the code already says is noise that
-rots out of sync — delete it.
-
-- **Module / package** docs: role in the architecture + key invariants.
-- **Public API** docs: the contract — behavior, errors, units, side effects, and any
-  threading/async/`unsafe`/ordering constraints (especially the surprising ones).
-  Use the language's idiom: rustdoc `//!`/`///`, Google-style Python docstrings,
-  TSDoc on exports, godoc doc-comments starting with the identifier name.
-- **Inline why-comments:** workarounds, perf-sensitive code, security rationale,
-  dependency pins (explain *why* pinned). These are the highest-value comments.
-- **Skip:** trivial helpers, getters, type-restating, per-variable docstrings.
-- **Big architectural decisions → ADRs**, not scattered docstrings; link code to the
-  ADR. Reference existing design specs (`.ai/spec/`, `design/vN/`) rather than copying.
-
-> A new contributor (human or LLM) should read a module's header + a public item's
-> doc and understand *why it is the way it is* without reverse-engineering it.
+For the long-form version of this baseline (product architecture in more depth,
+documentation-comment philosophy, etc.), see this repo's `CLAUDE.md` — the content
+overlaps by design; this file exists so a Codex session has everything it needs
+without reading a Claude-Code-specific file.
