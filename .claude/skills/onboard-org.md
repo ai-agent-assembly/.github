@@ -32,7 +32,12 @@ or a fresh agent context with no prior memory of this org.
    later `git pull` in `.github` propagates automatically) and never
    clobbers a file that isn't the symlink it expects — see
    `scripts/README.md` for the full behavior.
-5. **Read the target repo's own `.claude/CLAUDE.md` (or `AGENTS.md`)** before
+5. **Validate the bootstrap worked.** Run
+   `./scripts/validate-ai-workspace.sh <workspace-root-path>` (optionally
+   passing one or more repo paths for a lightweight repo-level check too) —
+   it reports missing files, broken symlinks, and any local override, with a
+   non-zero exit if something's actually broken.
+6. **Read the target repo's own `.claude/CLAUDE.md` (or `AGENTS.md`)** before
    writing any code. Repo-local files override or extend the org baseline for
    that repo — build/test/lint commands, directory conventions, and gotchas
    live there, not in the org baseline.
