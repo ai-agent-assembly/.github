@@ -28,7 +28,22 @@ self-check pass, not a substitute for actual reviewer feedback.
   for the exact test command — don't guess.
 - [ ] **Lint/format/type-check run and pass locally**, if the repo has that
   tooling configured. Same note — commands are repo-specific.
-- [ ] **No secrets, credentials, or `.env` files** in the diff.
+- [ ] **All CI checks are green**, with one named exception: the known
+  GitHub Actions billing-block (see `CLAUDE.md`'s "CI reality" note) — a
+  `GitHub Actions` check-suite that completes in a few seconds with **zero
+  jobs**. Confirm that's actually what happened (`gh api
+  repos/<org>/<repo>/commits/<sha>/check-suites`, or the job annotations) before
+  waving a red check through — don't assume every red check is the billing
+  block. Any other failure (test, lint, type-check, build, a real Actions job
+  that ran and failed) must be fixed before requesting review, even if it
+  looks unrelated to your change. Coverage/SonarQube-style acceptance gates
+  that only fail because upstream Actions jobs never produced artifacts (a
+  downstream symptom of the same billing block) fall under the same
+  exception — don't chase those either.
+- [ ] **No security rule violations** per `.claude/rules/01-security.md` —
+  no secrets, credentials, tokens, or `.env` files in the diff; no dangerous
+  patterns (`curl | bash`, `eval` on untrusted input, `--no-verify`,
+  force-push to a shared branch) introduced.
 - [ ] **No build artifacts, compiled output, or commented-out dead code**
   in the diff.
 
