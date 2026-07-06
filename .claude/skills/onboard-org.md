@@ -22,14 +22,22 @@ or a fresh agent context with no prior memory of this org.
 3. **Pick the repo relevant to your task** — see the `choose-repo` skill for
    the decision tree. Don't guess from the ticket title alone; check the
    ticket's Component field first.
-4. **Bootstrap your local workspace**, once `AAASM-3943` ships: the org
-   baseline (`CLAUDE.md`, `AGENTS.md`, `.claude/rules/`, `.claude/skills/`)
-   will be installable into a workspace root via
-   `scripts/bootstrap-ai-workspace.sh` (exact CLI interface TBD — check the
-   script's own `--help` once it exists rather than assuming flags here).
-   Until then, clone `.github` directly and read its files in place, or read
-   them from whichever repo already carries a synced copy.
-5. **Read the target repo's own `.claude/CLAUDE.md` (or `AGENTS.md`)** before
+4. **Bootstrap your local workspace.** The org baseline (`CLAUDE.md`,
+   `AGENTS.md`, `.claude/rules/`, `.claude/skills/`) installs into a
+   workspace root via:
+   ```
+   ./scripts/bootstrap-ai-workspace.sh <workspace-root-path> [--dry-run]
+   ```
+   run from a local clone of `.github`. It symlinks the baseline in (so a
+   later `git pull` in `.github` propagates automatically) and never
+   clobbers a file that isn't the symlink it expects — see
+   `scripts/README.md` for the full behavior.
+5. **Validate the bootstrap worked.** Run
+   `./scripts/validate-ai-workspace.sh <workspace-root-path>` (optionally
+   passing one or more repo paths for a lightweight repo-level check too) —
+   it reports missing files, broken symlinks, and any local override, with a
+   non-zero exit if something's actually broken.
+6. **Read the target repo's own `.claude/CLAUDE.md` (or `AGENTS.md`)** before
    writing any code. Repo-local files override or extend the org baseline for
    that repo — build/test/lint commands, directory conventions, and gotchas
    live there, not in the org baseline.
