@@ -11,7 +11,10 @@ or a fresh agent context with no prior memory of this org.
    canonical source). Codex or any other `AGENTS.md`-reading tool: read
    `AGENTS.md` instead — same content, Codex-facing. Do not skip this even if
    the task looks small; it covers commit/branch/PR conventions, remote
-   naming, CI reality, and JIRA field mapping you will need immediately.
+   naming, CI reality, and JIRA field mapping you will need immediately. Also
+   read `.claude/rules/01-security.md` specifically before writing any code —
+   of everything in `.claude/rules/`, it's the one with real blast radius if
+   skipped.
 2. **Confirm the workspace layout**, if you're operating from a multi-repo
    workspace root rather than a single repo checkout — see
    `.claude/WORKSPACE.md` in `.github` for the expected layout
