@@ -171,6 +171,49 @@ ensure_symlink() {
   fi
 }
 
+ensure_dir_of_symlinks() {
+  # ensure_dir_of_symlinks <source-dir> <target-dir> <label>
+  #
+  # Installs one symlink per file in <source-dir> into <target-dir>, rather
+  # than symlinking <target-dir> itself to <source-dir> as a single unit.
+  # This is what makes per-file overrides possible: a contributor can delete
+  # one file's symlink and drop in their own version of just that file,
+  # while every other file in the directory stays linked to the org
+  # baseline. See .claude/WORKSPACE.md's override model and
+  # validate-ai-workspace.sh's matching per-file check.
+  local source_dir="$1"
+  local target_dir="$2"
+  local label="$3"
+
+  if [[ ! -d "${source_dir}" ]]; then
+    record "failed" "${label}: source directory ${source_dir} does not exist in this repo"
+    return 0
+  fi
+
+  # Back-compat: an older version of this script symlinked the whole
+  # directory as one unit. If that's what's already installed, leave it
+  # alone rather than silently migrating it out from under the contributor —
+  # migrating to per-file symlinks is a deliberate action (remove the old
+  # directory-level symlink, then re-run this script).
+  if [[ -L "${target_dir}" ]]; then
+    if [[ -e "${target_dir}" && "$(realpath "${target_dir}")" == "$(realpath "${source_dir}")" ]]; then
+      record "skipped" "${label}: already linked as a whole directory (old-style install, up to date)"
+    else
+      record "skipped" "${label}: exists as a symlink elsewhere (skipped (local override))"
+    fi
+    return 0
+  fi
+
+  ensure_directory "${target_dir}" "${label}"
+
+  local entry name
+  for entry in "${source_dir}"/*; do
+    [[ -e "${entry}" ]] || continue
+    name="$(basename "${entry}")"
+    ensure_symlink "${entry}" "${target_dir}/${name}" "${label}/${name}"
+  done
+}
+
 if [[ "${DRY_RUN}" -eq 1 ]]; then
   echo "Dry run: no changes will be made."
 fi
@@ -186,8 +229,8 @@ ensure_directory "${WORKSPACE_ROOT}/.claude/commands" "workspace .claude/command
 # --- Org baseline artifacts (symlinked, see comment at top of file) ---------
 ensure_symlink "${SCRIPT_DIR}/CLAUDE.md" "${WORKSPACE_ROOT}/CLAUDE.md" "CLAUDE.md"
 ensure_symlink "${SCRIPT_DIR}/AGENTS.md" "${WORKSPACE_ROOT}/AGENTS.md" "AGENTS.md"
-ensure_symlink "${SCRIPT_DIR}/.claude/rules" "${WORKSPACE_ROOT}/.claude/rules" ".claude/rules"
-ensure_symlink "${SCRIPT_DIR}/.claude/skills" "${WORKSPACE_ROOT}/.claude/skills" ".claude/skills"
+ensure_dir_of_symlinks "${SCRIPT_DIR}/.claude/rules" "${WORKSPACE_ROOT}/.claude/rules" ".claude/rules"
+ensure_dir_of_symlinks "${SCRIPT_DIR}/.claude/skills" "${WORKSPACE_ROOT}/.claude/skills" ".claude/skills"
 
 # --- Summary ------------------------------------------------------------------
 echo
