@@ -79,6 +79,9 @@ record() {
     updated) UPDATED=$((UPDATED + 1)) ;;
     skipped) SKIPPED=$((SKIPPED + 1)) ;;
     failed) FAILED=$((FAILED + 1)) ;;
+    *)
+      echo "Warning: record() called with unexpected status '${status}'" >&2
+      ;;
   esac
   REPORT_LINES+=("[${status}] ${message}")
 }
