@@ -2,7 +2,7 @@
 
 ## Documentation
 
-- Public docs: <https://docs.agentassembly.dev> *(link pending domain setup)*
+- Public docs: <https://docs.agent-assembly.com>
 - Per-repo READMEs: see each repo for setup and usage notes
 
 ## Community
@@ -17,4 +17,4 @@
 
 ## Commercial Support
 
-Commercial support, SLA-backed deployments, and enterprise features are available via the SaaS cloud control plane. See <https://agentassembly.dev> *(link pending domain setup)*.
+Commercial support, SLA-backed deployments, and enterprise features are available via the SaaS cloud control plane. See <https://agent-assembly.com>.
