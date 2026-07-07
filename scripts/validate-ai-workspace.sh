@@ -175,6 +175,9 @@ if [[ -d "${WORKSPACE_ROOT}/.claude" ]]; then
       "${WORKSPACE_ROOT}/.claude/skills" | "${WORKSPACE_ROOT}/.claude/skills/"*)
         continue
         ;;
+      *)
+        # Other symlinks under .claude/ — check them below
+        ;;
     esac
     if [[ ! -e "${link}" ]]; then
       BROKEN+=("extra symlink: ${link} -> $(readlink "${link}") (target does not exist)")
