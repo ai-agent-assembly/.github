@@ -47,6 +47,9 @@ case "$1" in
     usage
     exit 0
     ;;
+  *)
+    # Not a flag — fall through to treat as workspace-root-path
+    ;;
 esac
 
 WORKSPACE_ROOT="$1"
