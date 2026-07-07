@@ -47,6 +47,9 @@ case "$1" in
     usage
     exit 0
     ;;
+  *)
+    # Not a flag — fall through to treat as workspace-root-path
+    ;;
 esac
 
 WORKSPACE_ROOT="$1"
@@ -171,6 +174,9 @@ if [[ -d "${WORKSPACE_ROOT}/.claude" ]]; then
       "${WORKSPACE_ROOT}/.claude/rules" | "${WORKSPACE_ROOT}/.claude/rules/"* | \
       "${WORKSPACE_ROOT}/.claude/skills" | "${WORKSPACE_ROOT}/.claude/skills/"*)
         continue
+        ;;
+      *)
+        # Other symlinks under .claude/ — check them below
         ;;
     esac
     if [[ ! -e "${link}" ]]; then
