@@ -33,7 +33,7 @@ ships the `aasm` binary. See `profile/README.md` for the full repo map.
 | `agent-assembly-examples` | Runnable governance demo scenarios |
 | `agent-assembly-integration-tests` / `agent-assembly-private-e2e` | Cross-repo + private e2e suites |
 | `agent-assembly-docs` / `inner-document` | Public docs site / internal docs site |
-| `homebrew-agent-assembly` | Homebrew tap for the `aasm` CLI |
+| `homebrew-tap` | Homebrew tap for the `aasm` CLI |
 | `.github` / `.github-private` | Org community-health, reusable workflow-templates, this baseline |
 | `agent-assembly-spec` | **Archived** — the protocol spec lives in the `agent-assembly` monorepo |
 
