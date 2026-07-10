@@ -1,0 +1,263 @@
+# Source of truth for the org-profile README (profile/README.md).
+#
+# This file drives the generator at scripts/generate_org_profile.py, which
+# rewrites bounded <!-- BEGIN GENERATED: <id> --> ... <!-- END GENERATED: <id> -->
+# sections in profile/README.md. The generator is idempotent — running it
+# against an unchanged SoT produces no diff, and CI enforces that via
+# .github/workflows/org-profile-drift.yml.
+#
+# Values MUST match what appears in profile/README.md today, byte-for-byte,
+# so the first regeneration is content-neutral.
+#
+# When any of the following change, edit THIS file, then run:
+#     python3 scripts/generate_org_profile.py
+#
+# and commit both the SoT change and the regenerated README.
+#
+# Historical narrative sections in profile/README.md
+# (Full Production Highlights, Documentation and Community, Release Notes)
+# stay literal and are NOT generated from this file.
+
+org: ai-agent-assembly
+
+# Repository Status table rows. The generator emits one Markdown table row per
+# entry, in this order, inside the "repo_table" bounded section.
+#
+# Fields:
+#   slug            - short repo name for the badge label (e.g. "agent-assembly")
+#   repo            - "<org>/<repo>" GitHub slug for URL construction
+#   default_branch  - branch used for CI / last-commit / commits URLs
+#   role            - short human description in the "Purpose" column
+#   badge:
+#     label_color   - shields.io color for the name badge (hex, no leading #)
+#     logo          - shields.io logo id (shields.io "?logo=" value)
+#     logo_color    - optional logoColor override (blank = shields default)
+#     tag_prefix    - "SDK" / "core" / "tap" / "docs" / "spec" / "examples" /
+#                     "org-profile" — appears after the "--" in the badge
+#   version:        # cell 3: Version — list of shield markdown fragments
+#     - one or more raw badge fragments
+#   activity_ci:    # cell 4: Base branch health — CI status badge fragment(s),
+#                   #         OR "—" when no CI is applicable
+#   activity_meta:  # cell 5: Activity — issues / PRs / last-commit fragments
+repos:
+  - slug: agent-assembly
+    repo: ai-agent-assembly/agent-assembly
+    default_branch: master
+    role: "Core Rust monorepo: gateway, policy engine, CLI, API, dashboard"
+    badge:
+      label_color: "000000"
+      logo: rust
+      tag_prefix: core
+    version:
+      - "[![GitHub tag](https://img.shields.io/github/v/tag/ai-agent-assembly/agent-assembly?label=GitHub&logo=github)](https://github.com/ai-agent-assembly/agent-assembly/tags)"
+      - "[![crates.io](https://img.shields.io/badge/crates.io-reference-000000?logo=rust)](https://crates.io/search?q=agent-assembly)"
+    activity_ci:
+      - "[![CI](https://github.com/ai-agent-assembly/agent-assembly/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ai-agent-assembly/agent-assembly/actions/workflows/ci.yml?query=branch%3Amaster)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/agent-assembly?label=issues)](https://github.com/ai-agent-assembly/agent-assembly/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/agent-assembly?label=PRs)](https://github.com/ai-agent-assembly/agent-assembly/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/agent-assembly?label=last)](https://github.com/ai-agent-assembly/agent-assembly/commits/master)"
+
+  - slug: python-sdk
+    repo: ai-agent-assembly/python-sdk
+    default_branch: master
+    role: "Python SDK (PyO3 native + pure-Python client)"
+    badge:
+      label_color: "3776AB"
+      logo: python
+      logo_color: white
+      tag_prefix: SDK
+    version:
+      - "[![GitHub release](https://img.shields.io/github/v/release/ai-agent-assembly/python-sdk?include_prereleases&sort=semver&label=GitHub&logo=github)](https://github.com/ai-agent-assembly/python-sdk/releases)"
+      - "[![PyPI](https://img.shields.io/pypi/v/agent-assembly?label=PyPI&logo=pypi&logoColor=white)](https://pypi.org/project/agent-assembly/)"
+    activity_ci:
+      - "[![CI](https://github.com/ai-agent-assembly/python-sdk/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/ai-agent-assembly/python-sdk/actions/workflows/ci.yaml?query=branch%3Amaster)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/python-sdk?label=issues)](https://github.com/ai-agent-assembly/python-sdk/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/python-sdk?label=PRs)](https://github.com/ai-agent-assembly/python-sdk/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/python-sdk?label=last)](https://github.com/ai-agent-assembly/python-sdk/commits/master)"
+
+  - slug: node-sdk
+    repo: ai-agent-assembly/node-sdk
+    default_branch: master
+    role: "TypeScript SDK (napi-rs native + JS client)"
+    badge:
+      label_color: "339933"
+      logo: node.js
+      logo_color: white
+      tag_prefix: SDK
+    version:
+      - "[![GitHub release](https://img.shields.io/github/v/release/ai-agent-assembly/node-sdk?include_prereleases&sort=semver&label=GitHub&logo=github)](https://github.com/ai-agent-assembly/node-sdk/releases)"
+      - "[![npm](https://img.shields.io/npm/v/%40agent-assembly%2Fsdk/beta?label=npm&logo=npm&logoColor=white)](https://www.npmjs.com/package/@agent-assembly/sdk)"
+    activity_ci:
+      - "[![Tests](https://github.com/ai-agent-assembly/node-sdk/actions/workflows/test-matrix.yml/badge.svg?branch=master)](https://github.com/ai-agent-assembly/node-sdk/actions/workflows/test-matrix.yml?query=branch%3Amaster)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/node-sdk?label=issues)](https://github.com/ai-agent-assembly/node-sdk/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/node-sdk?label=PRs)](https://github.com/ai-agent-assembly/node-sdk/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/node-sdk?label=last)](https://github.com/ai-agent-assembly/node-sdk/commits/master)"
+
+  - slug: go-sdk
+    repo: ai-agent-assembly/go-sdk
+    default_branch: master
+    role: "Go SDK"
+    badge:
+      label_color: "00ADD8"
+      logo: go
+      logo_color: white
+      tag_prefix: SDK
+    version:
+      - "[![GitHub tag](https://img.shields.io/github/v/tag/ai-agent-assembly/go-sdk?sort=semver&label=GitHub&logo=github)](https://github.com/ai-agent-assembly/go-sdk/tags)"
+      - "[![Go Reference](https://pkg.go.dev/badge/github.com/ai-agent-assembly/go-sdk.svg)](https://pkg.go.dev/github.com/ai-agent-assembly/go-sdk)"
+    activity_ci:
+      - "[![Go test](https://github.com/ai-agent-assembly/go-sdk/actions/workflows/go-test.yml/badge.svg?branch=master)](https://github.com/ai-agent-assembly/go-sdk/actions/workflows/go-test.yml?query=branch%3Amaster)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/go-sdk?label=issues)](https://github.com/ai-agent-assembly/go-sdk/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/go-sdk?label=PRs)](https://github.com/ai-agent-assembly/go-sdk/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/go-sdk?label=last)](https://github.com/ai-agent-assembly/go-sdk/commits/master)"
+
+  - slug: .github
+    repo: ai-agent-assembly/.github
+    default_branch: master
+    role: "Organization profile, templates, support, and community files"
+    badge:
+      label_color: "181717"
+      logo: github
+      tag_prefix: org-profile
+    version:
+      - "—"
+    activity_ci:
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/.github?label=last)](https://github.com/ai-agent-assembly/.github/commits/master)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/.github?label=issues)](https://github.com/ai-agent-assembly/.github/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/.github?label=PRs)](https://github.com/ai-agent-assembly/.github/pulls)"
+
+  - slug: homebrew-tap
+    repo: ai-agent-assembly/homebrew-tap
+    default_branch: master
+    role: "Homebrew tap for `aasm`"
+    badge:
+      label_color: "FBB040"
+      logo: homebrew
+      logo_color: black
+      tag_prefix: tap
+    version:
+      - "[![formula](https://img.shields.io/github/v/release/ai-agent-assembly/agent-assembly?include_prereleases&sort=semver&label=formula&logo=homebrew)](https://github.com/ai-agent-assembly/homebrew-tap/blob/master/Formula/aasm.rb)"
+      - "[![Homebrew](https://img.shields.io/badge/brew-ai--agent--assembly%2Ftap%2Faasm-FBB040?logo=homebrew)](https://github.com/ai-agent-assembly/homebrew-tap)"
+    activity_ci:
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/homebrew-tap?label=last)](https://github.com/ai-agent-assembly/homebrew-tap/commits/master)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/homebrew-tap?label=issues)](https://github.com/ai-agent-assembly/homebrew-tap/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/homebrew-tap?label=PRs)](https://github.com/ai-agent-assembly/homebrew-tap/pulls)"
+
+  - slug: agent-assembly-docs
+    repo: ai-agent-assembly/docs
+    default_branch: main
+    role: "Public documentation site"
+    badge:
+      label_color: "4051B5"
+      logo: materialformkdocs
+      logo_color: white
+      tag_prefix: docs
+    # Note: version badge tracks the CORE repo release, not this repo — the
+    # public docs are versioned against agent-assembly, not against docs itself.
+    version:
+      - "[![tracks](https://img.shields.io/github/v/release/ai-agent-assembly/agent-assembly?include_prereleases&sort=semver&label=tracks&logo=github)](https://github.com/ai-agent-assembly/agent-assembly/releases)"
+    activity_ci:
+      - "[![Deploy](https://github.com/ai-agent-assembly/docs/actions/workflows/aggregate.yml/badge.svg?branch=main)](https://github.com/ai-agent-assembly/docs/actions/workflows/aggregate.yml?query=branch%3Amain)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/docs?label=issues)](https://github.com/ai-agent-assembly/docs/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/docs?label=PRs)](https://github.com/ai-agent-assembly/docs/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/docs?label=last)](https://github.com/ai-agent-assembly/docs/commits/main)"
+
+  - slug: agent-assembly-spec
+    repo: ai-agent-assembly/agent-assembly-spec
+    default_branch: master
+    role: "Shared specifications and protocol contracts"
+    badge:
+      label_color: "6E40C9"
+      logo: openapiinitiative
+      logo_color: white
+      tag_prefix: spec
+    version:
+      - "[![reserved](https://img.shields.io/badge/status-reserved-lightgrey)](https://github.com/ai-agent-assembly/agent-assembly-spec)"
+    activity_ci:
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/agent-assembly-spec?label=last)](https://github.com/ai-agent-assembly/agent-assembly-spec/commits/master)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/agent-assembly-spec?label=issues)](https://github.com/ai-agent-assembly/agent-assembly-spec/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/agent-assembly-spec?label=PRs)](https://github.com/ai-agent-assembly/agent-assembly-spec/pulls)"
+
+  - slug: agent-assembly-examples
+    repo: ai-agent-assembly/examples
+    default_branch: master
+    role: "Runnable sample code for every SDK plus policy, approval, audit, trace, and runtime workflows"
+    badge:
+      label_color: "22C55E"
+      logo: github
+      tag_prefix: examples
+    version:
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/examples?label=last)](https://github.com/ai-agent-assembly/examples/commits/master)"
+    # No CI cell — examples repo does not surface a base-branch CI badge here.
+    activity_ci: []
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/examples?label=issues)](https://github.com/ai-agent-assembly/examples/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/examples?label=PRs)](https://github.com/ai-agent-assembly/examples/pulls)"
+
+# Install-snippets bounded section. Each channel becomes a "#### <heading>"
+# subsection under "### Install channels", followed by a fenced code block
+# (language = "sh"), followed by an optional trailing note (rendered as-is).
+install_channels:
+  - id: homebrew
+    heading: "Homebrew (macOS, Linux)"
+    lang: sh
+    commands:
+      - "brew install ai-agent-assembly/tap/aasm"
+
+  - id: python
+    heading: "Python — pip, uv, or poetry"
+    lang: sh
+    commands:
+      - "# pip"
+      - "pip install agent-assembly"
+      - ""
+      - "# uv"
+      - "uv add agent-assembly"
+      - ""
+      - "# poetry"
+      - "poetry add agent-assembly"
+
+  - id: node
+    heading: "Node.js — pnpm (recommended), npm, or yarn"
+    lang: sh
+    commands:
+      - "# pnpm (recommended)"
+      - "pnpm add @agent-assembly/sdk"
+      - ""
+      - "# npm"
+      - "npm install @agent-assembly/sdk"
+      - ""
+      - "# yarn"
+      - "yarn add @agent-assembly/sdk"
+
+  - id: go
+    heading: "Go — go get"
+    lang: sh
+    commands:
+      - "go get github.com/ai-agent-assembly/go-sdk"
+
+  - id: docker
+    heading: "Docker"
+    # Prose-only channel — no code block.
+    lang: null
+    commands: []
+    note: |
+      > A published container image is coming soon. No image is available on
+      > `ghcr.io` yet.
+
+  - id: curl
+    heading: "curl one-line installer (CLI)"
+    lang: sh
+    commands:
+      - "curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/master/scripts/install-cli.sh | sh"
+    note: |
+      > A short hosted alias (`https://install.ai-agent-assembly.dev`) is planned but
+      > not yet live — use the `raw.githubusercontent.com` URL above for now.
