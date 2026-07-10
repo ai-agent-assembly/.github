@@ -263,26 +263,37 @@ def render_repo_table(repos: list[dict]) -> str:
         logo_color = badge.get("logo_color")
         tag_prefix = str(badge.get("tag_prefix", ""))
 
-        # shields.io renders "--" as a single dash in badge label paths.
+        # shields.io renders "--" as a single dash in badge label paths, so
+        # both the slug and the tag_prefix must be escaped the same way when
+        # they contain literal dashes. The SoT stores the plain values
+        # ("agent-assembly", "org-profile") — escaping is a rendering concern.
         shielded_slug = slug.replace("-", "--")
+        shielded_tag = tag_prefix.replace("-", "--")
 
         logo_frag = f"logo={logo}"
         if logo_color:
             logo_frag += f"&logoColor={logo_color}"
         name_badge = (
             f"[![{slug}](https://img.shields.io/badge/"
-            f"{shielded_slug}-{tag_prefix}-{label_color}?{logo_frag})]"
+            f"{shielded_slug}-{shielded_tag}-{label_color}?{logo_frag})]"
             f"(https://github.com/{repo_full})"
         )
 
         version_cell = " ".join(str(v) for v in (r.get("version") or []))
         ci_list = r.get("activity_ci") or []
+        # Empty cells render as "| |" (single space between pipes) — matches
+        # the existing README convention and avoids "|  |" (double space)
+        # that a naive " ".join() on an empty list would produce.
         ci_cell = " ".join(str(v) for v in ci_list) if ci_list else ""
         activity_cell = " ".join(str(v) for v in (r.get("activity_meta") or []))
 
-        lines.append(
-            f"| {name_badge} | {role} | {version_cell} | {ci_cell} | {activity_cell} |"
-        )
+        parts = [name_badge, role, version_cell, ci_cell, activity_cell]
+        # Empty cell => "| |" (single-space) to match the pre-existing rows.
+        # A naive f"| {a} | {b} |" would emit "|  |" for an empty cell.
+        row = "|"
+        for p in parts:
+            row += f" {p} |" if p else " |"
+        lines.append(row)
     return "\n".join(lines)
 
 
