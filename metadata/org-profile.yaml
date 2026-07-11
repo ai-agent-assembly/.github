@@ -125,11 +125,14 @@ repos:
       tag_prefix: org-profile
     version:
       - "—"
-    activity_ci:
-      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/.github?label=last)](https://github.com/ai-agent-assembly/.github/commits/master)"
+    # No base-branch CI signal to surface for the org-profile repo; keep the
+    # cell empty so the header (Base branch health) stays truthful, and put
+    # the last-commit badge in the Activity column where it belongs.
+    activity_ci: []
     activity_meta:
       - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/.github?label=issues)](https://github.com/ai-agent-assembly/.github/issues)"
       - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/.github?label=PRs)](https://github.com/ai-agent-assembly/.github/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/.github?label=last)](https://github.com/ai-agent-assembly/.github/commits/master)"
 
   - slug: homebrew-tap
     repo: ai-agent-assembly/homebrew-tap
@@ -143,11 +146,13 @@ repos:
     version:
       - "[![formula](https://img.shields.io/github/v/release/ai-agent-assembly/agent-assembly?include_prereleases&sort=semver&label=formula&logo=homebrew)](https://github.com/ai-agent-assembly/homebrew-tap/blob/master/Formula/aasm.rb)"
       - "[![Homebrew](https://img.shields.io/badge/brew-ai--agent--assembly%2Ftap%2Faasm-FBB040?logo=homebrew)](https://github.com/ai-agent-assembly/homebrew-tap)"
-    activity_ci:
-      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/homebrew-tap?label=last)](https://github.com/ai-agent-assembly/homebrew-tap/commits/master)"
+    # Tap has no base-branch CI signal to surface; keep the column empty and
+    # move the last-commit badge to the Activity column.
+    activity_ci: []
     activity_meta:
       - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/homebrew-tap?label=issues)](https://github.com/ai-agent-assembly/homebrew-tap/issues)"
       - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/homebrew-tap?label=PRs)](https://github.com/ai-agent-assembly/homebrew-tap/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/homebrew-tap?label=last)](https://github.com/ai-agent-assembly/homebrew-tap/commits/master)"
 
   - slug: agent-assembly-docs
     repo: ai-agent-assembly/docs
@@ -180,11 +185,13 @@ repos:
       tag_prefix: spec
     version:
       - "[![reserved](https://img.shields.io/badge/status-reserved-lightgrey)](https://github.com/ai-agent-assembly/agent-assembly-spec)"
-    activity_ci:
-      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/agent-assembly-spec?label=last)](https://github.com/ai-agent-assembly/agent-assembly-spec/commits/master)"
+    # Spec repo has no base-branch CI signal to surface yet (reserved scaffold);
+    # keep the column empty and put last-commit in the Activity column.
+    activity_ci: []
     activity_meta:
       - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/agent-assembly-spec?label=issues)](https://github.com/ai-agent-assembly/agent-assembly-spec/issues)"
       - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/agent-assembly-spec?label=PRs)](https://github.com/ai-agent-assembly/agent-assembly-spec/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/agent-assembly-spec?label=last)](https://github.com/ai-agent-assembly/agent-assembly-spec/commits/master)"
 
   - slug: agent-assembly-examples
     repo: ai-agent-assembly/examples
@@ -194,13 +201,18 @@ repos:
       label_color: "22C55E"
       logo: github
       tag_prefix: examples
+    # Examples repo is not versioned independently — it tracks the SDKs it
+    # exercises, not its own release cadence. Keep the Version cell as an
+    # em-dash placeholder to match the ".github" row's semantics rather than
+    # borrowing the Activity column's last-commit badge.
     version:
-      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/examples?label=last)](https://github.com/ai-agent-assembly/examples/commits/master)"
-    # No CI cell — examples repo does not surface a base-branch CI badge here.
+      - "—"
+    # No base-branch CI signal to surface for examples; keep the column empty.
     activity_ci: []
     activity_meta:
       - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/examples?label=issues)](https://github.com/ai-agent-assembly/examples/issues)"
       - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/examples?label=PRs)](https://github.com/ai-agent-assembly/examples/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/examples?label=last)](https://github.com/ai-agent-assembly/examples/commits/master)"
 
 # Install-snippets bounded section. Each channel becomes a "#### <heading>"
 # subsection under "### Install channels", followed by a fenced code block
