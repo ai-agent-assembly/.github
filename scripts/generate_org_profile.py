@@ -246,13 +246,22 @@ def parse_yaml(text: str) -> dict:
 
 
 def render_repo_table(repos: list[dict]) -> str:
-    """Render the Repository Status table rows.
+    """Render the full Repository Status table (header + separator + body).
 
-    Only the data rows are generated. The header + separator remain in the
-    static prelude of the section (outside the bounded block), so a future
-    columns change stays visible in review.
+    The header row and separator row are emitted inside the bounded block
+    alongside the data rows so the entire GFM table is one contiguous block
+    of Markdown. GitHub's GFM parser treats a bare HTML comment between the
+    separator and the first data row as a block-level break — putting the
+    `<!-- BEGIN GENERATED: ... -->` sentinel there orphans the body and
+    causes it to render as a `<p>` under an empty `<thead>`-only table
+    (see AAASM-4410). Keeping header + separator + body in one block, with
+    the sentinels wrapping the whole table, is the only shape that survives
+    GFM parsing.
     """
-    lines: list[str] = []
+    lines: list[str] = [
+        "| Repo | Purpose | Version | Base branch health | Activity |",
+        "| --- | --- | --- | --- | --- |",
+    ]
     for r in repos:
         slug = str(r["slug"])
         repo_full = str(r["repo"])
