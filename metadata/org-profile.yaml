@@ -214,6 +214,25 @@ repos:
       - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/examples?label=PRs)](https://github.com/ai-agent-assembly/examples/pulls)"
       - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/examples?label=last)](https://github.com/ai-agent-assembly/examples/commits/master)"
 
+  - slug: arena
+    repo: ai-agent-assembly/arena
+    default_branch: main
+    role: "Public trial ground for agent-assembly governance: cross-framework adversarial trials, behavior profiles, match reports"
+    badge:
+      label_color: "DC2626"
+      logo: github
+      tag_prefix: arena
+    # Arena has no releases/tags yet (AAASM-4407). Keep the Version cell as an
+    # em-dash placeholder to match the "examples" row's semantics.
+    version:
+      - "—"
+    activity_ci:
+      - "[![CI](https://github.com/ai-agent-assembly/arena/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ai-agent-assembly/arena/actions/workflows/ci.yml?query=branch%3Amain)"
+    activity_meta:
+      - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/arena?label=issues)](https://github.com/ai-agent-assembly/arena/issues)"
+      - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/arena?label=PRs)](https://github.com/ai-agent-assembly/arena/pulls)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/arena?label=last)](https://github.com/ai-agent-assembly/arena/commits/main)"
+
 # Install-snippets bounded section. Each channel becomes a "#### <heading>"
 # subsection under "### Install channels", followed by a fenced code block
 # (language = "sh"), followed by an optional trailing note (rendered as-is).
