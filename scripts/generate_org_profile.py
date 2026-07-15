@@ -116,6 +116,118 @@ def _indent_of(line: str) -> int:
     return len(line) - len(line.lstrip(" "))
 
 
+def _peek_container_kind(raw_lines: list[str], i: int, indent: int) -> Any:
+    """Decide the empty container a bare ``key:`` introduces: ``[]`` or ``{}``.
+
+    Peeks at the next non-blank, non-comment line — a more-indented ``- `` line
+    means a list; anything else more-indented means a mapping; nothing deeper
+    means an empty mapping by convention.
+    """
+    j = i + 1
+    while j < len(raw_lines):
+        nxt = raw_lines[j]
+        if not nxt.strip() or nxt.lstrip().startswith("#"):
+            j += 1
+            continue
+        nxt_indent = _indent_of(nxt)
+        if nxt_indent <= indent:
+            return {}
+        return [] if nxt.lstrip().startswith("- ") else {}
+    return {}
+
+
+def _collect_block_scalar(
+    raw_lines: list[str], i: int, indent: int
+) -> tuple[str, int]:
+    """Collect a ``|`` literal block scalar. Returns ``(value, next_index)``.
+
+    Lines more-indented than the key are kept verbatim (dedented to the first
+    body line's indent); trailing blank lines are clipped, matching YAML's
+    default block-scalar clip behavior.
+    """
+    block_indent: Optional[int] = None
+    body_lines: list[str] = []
+    j = i + 1
+    while j < len(raw_lines):
+        blk = raw_lines[j]
+        if not blk.strip():
+            body_lines.append("")
+            j += 1
+            continue
+        bi = _indent_of(blk)
+        if bi <= indent:
+            break
+        if block_indent is None:
+            block_indent = bi
+        body_lines.append(blk[block_indent:])
+        j += 1
+    # Trim trailing blank lines (default clip behavior).
+    while body_lines and body_lines[-1] == "":
+        body_lines.pop()
+    return "\n".join(body_lines) + "\n", j
+
+
+def _handle_list_item(
+    raw_lines: list[str],
+    i: int,
+    indent: int,
+    content: str,
+    parent: Any,
+    stack: list[tuple[int, Any]],
+) -> int:
+    """Process a ``- ...`` list item; returns the next line index to read.
+
+    An inline mapping (``- key: value``) opens a new dict on ``parent`` and
+    re-feeds the key/value as a virtual line at the same index (returns ``i``
+    unchanged so it is re-processed); a scalar item is appended directly.
+    """
+    if not isinstance(parent, list):
+        raise YamlError(f"line {i+1}: list item under non-list container")
+    item_body = content[2:].strip()
+    if ":" in item_body and not item_body.startswith('"'):
+        new_map: dict = {}
+        parent.append(new_map)
+        stack.append((indent, new_map))
+        raw_lines[i] = " " * (indent + 2) + item_body
+        return i
+    parent.append(_unquote(item_body))
+    return i + 1
+
+
+def _handle_mapping(
+    raw_lines: list[str],
+    i: int,
+    indent: int,
+    content: str,
+    parent: Any,
+    stack: list[tuple[int, Any]],
+) -> int:
+    """Process a ``key: value`` / ``key:`` line; returns the next line index."""
+    if ":" not in content:
+        raise YamlError(f"line {i+1}: unrecognized syntax: {content!r}")
+    key, _, rest = content.partition(":")
+    key = key.strip()
+    rest = rest.strip()
+
+    if isinstance(parent, list):
+        raise YamlError(
+            f"line {i+1}: mapping key inside a list without leading '-'"
+        )
+
+    if rest == "":
+        container = _peek_container_kind(raw_lines, i, indent)
+        parent[key] = container
+        stack.append((indent, container))
+        return i + 1
+
+    if rest.startswith("|"):
+        parent[key], next_i = _collect_block_scalar(raw_lines, i, indent)
+        return next_i
+
+    parent[key] = _unquote(rest)
+    return i + 1
+
+
 def parse_yaml(text: str) -> dict:
     """Parse the org-profile.yaml subset described above."""
     # Tokenize into (indent, kind, raw) with comments/blank lines skipped,
@@ -149,93 +261,9 @@ def parse_yaml(text: str) -> dict:
         parent = stack[-1][1]
 
         if content.startswith("- "):
-            # List item. Parent must be a list — or we need to convert here.
-            if not isinstance(parent, list):
-                raise YamlError(f"line {i+1}: list item under non-list container")
-            item_body = content[2:].strip()
-            if ":" in item_body and not item_body.startswith('"'):
-                # Inline mapping start: "- key: value" or "- key:"
-                # Treat as start of a new dict that also gets this key.
-                new_map: dict = {}
-                parent.append(new_map)
-                stack.append((indent, new_map))
-                # Feed the key/value line back into the loop by inserting a
-                # virtual line at the same indent + 2.
-                virtual = " " * (indent + 2) + item_body
-                raw_lines[i] = virtual
-                continue  # re-process without advancing i
-            else:
-                # Scalar list item
-                parent.append(_unquote(item_body))
-                i += 1
-                continue
-
-        # Key: value or Key:
-        if ":" not in content:
-            raise YamlError(f"line {i+1}: unrecognized syntax: {content!r}")
-        key, _, rest = content.partition(":")
-        key = key.strip()
-        rest = rest.strip()
-
-        if isinstance(parent, list):
-            raise YamlError(
-                f"line {i+1}: mapping key inside a list without leading '-'"
-            )
-
-        if rest == "":
-            # Container follows. Peek next non-blank line for '-' vs 'k:'.
-            j = i + 1
-            container: Any = None
-            while j < len(raw_lines):
-                nxt = raw_lines[j]
-                if not nxt.strip() or nxt.lstrip().startswith("#"):
-                    j += 1
-                    continue
-                nxt_indent = _indent_of(nxt)
-                if nxt_indent <= indent:
-                    # No children — empty mapping by convention.
-                    container = {}
-                    break
-                if nxt.lstrip().startswith("- "):
-                    container = []
-                else:
-                    container = {}
-                break
-            if container is None:
-                container = {}
-            parent[key] = container
-            stack.append((indent, container))
-            i += 1
-            continue
-
-        if rest.startswith("|"):
-            # Block scalar (literal). Collect lines indented > current indent.
-            block_indent: Optional[int] = None
-            body_lines: list[str] = []
-            j = i + 1
-            while j < len(raw_lines):
-                blk = raw_lines[j]
-                if not blk.strip():
-                    body_lines.append("")
-                    j += 1
-                    continue
-                bi = _indent_of(blk)
-                if bi <= indent:
-                    break
-                if block_indent is None:
-                    block_indent = bi
-                body_lines.append(blk[block_indent:])
-                j += 1
-            # Trim trailing blank lines (default clip behavior).
-            while body_lines and body_lines[-1] == "":
-                body_lines.pop()
-            parent[key] = "\n".join(body_lines) + "\n"
-            i = j
-            continue
-
-        # Simple scalar
-        parent[key] = _unquote(rest)
-        i += 1
+            i = _handle_list_item(raw_lines, i, indent, content, parent, stack)
+        else:
+            i = _handle_mapping(raw_lines, i, indent, content, parent, stack)
 
     return root
 
