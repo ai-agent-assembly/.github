@@ -206,13 +206,17 @@ if [[ ${#REPO_PATHS[@]} -gt 0 ]]; then
 fi
 
 # --- Report ------------------------------------------------------------------
+# Placeholder printed for an empty report bucket, named once so the literal is
+# not repeated at every section (Sonar shelldrescher:S1192).
+readonly NONE_MARKER="  (none)"
+
 echo "Missing (${#MISSING[@]}):"
 if [[ ${#MISSING[@]} -gt 0 ]]; then
   for item in "${MISSING[@]}"; do
     echo "  - ${item}"
   done
 else
-  echo "  (none)"
+  echo "${NONE_MARKER}"
 fi
 echo
 
@@ -222,7 +226,7 @@ if [[ ${#BROKEN[@]} -gt 0 ]]; then
     echo "  - ${item}"
   done
 else
-  echo "  (none)"
+  echo "${NONE_MARKER}"
 fi
 echo
 
@@ -232,7 +236,7 @@ if [[ ${#OVERRIDES[@]} -gt 0 ]]; then
     echo "  - ${item}"
   done
 else
-  echo "  (none)"
+  echo "${NONE_MARKER}"
 fi
 echo
 
@@ -242,7 +246,7 @@ if [[ ${#OK[@]} -gt 0 ]]; then
     echo "  - ${item}"
   done
 else
-  echo "  (none)"
+  echo "${NONE_MARKER}"
 fi
 echo
 
