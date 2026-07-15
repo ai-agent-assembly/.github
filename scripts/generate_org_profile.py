@@ -146,7 +146,7 @@ def parse_yaml(text: str) -> dict:
         if not stack:
             raise YamlError(f"line {i+1}: no parent container")
 
-        parent_indent, parent = stack[-1]
+        parent = stack[-1][1]
 
         if content.startswith("- "):
             # List item. Parent must be a list — or we need to convert here.
