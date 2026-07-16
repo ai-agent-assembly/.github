@@ -39,6 +39,15 @@ skills/agents rely on it being accurate.
   them under one Epic rather than filing fully independent tickets — makes
   the pattern visible instead of scattered.
 
+## 4. File it
+
+Once you know the **type**, the **repo/component**, and **Epic-or-standalone**,
+author the ticket with the `ticket-authoring` skill — it covers the short
+intent-carrying title, the type-correct description schema (Story = user-facing,
+Task = technical, Bug = expected/actual/repro/env), the required fields
+(Components, Labels, Assignee, Story points, Team, Fix version, Start/Due), and
+the **Fix-version rule** (development work targets the *next* version).
+
 ## Do not
 
 - Do not file an environment/infra failure as a product bug — it pollutes
