@@ -70,6 +70,12 @@ FAILED=0
 # One human-readable line per item, appended as we go, printed at the end.
 declare -a REPORT_LINES=()
 
+# Record status labels, named once so the literal is not repeated at every
+# call site (Sonar shelldrescher:S1192).
+readonly STATUS_CREATED="created"
+readonly STATUS_SKIPPED="skipped"
+readonly STATUS_FAILED="failed"
+
 record() {
   # record <status> <message>
   local status="$1"
@@ -92,24 +98,24 @@ ensure_directory() {
   local label="$2"
 
   if [[ -d "${target}" && ! -L "${target}" ]]; then
-    record "skipped" "${label}: already exists (up to date)"
+    record "${STATUS_SKIPPED}" "${label}: already exists (up to date)"
     return 0
   fi
 
   if [[ -e "${target}" || -L "${target}" ]]; then
-    record "skipped" "${label}: exists but is not a plain directory (skipped (local override))"
+    record "${STATUS_SKIPPED}" "${label}: exists but is not a plain directory (skipped (local override))"
     return 0
   fi
 
   if [[ "${DRY_RUN}" -eq 1 ]]; then
-    record "created" "${label}: would create directory ${target}"
+    record "${STATUS_CREATED}" "${label}: would create directory ${target}"
     return 0
   fi
 
   if mkdir -p "${target}"; then
-    record "created" "${label}: created directory ${target}"
+    record "${STATUS_CREATED}" "${label}: created directory ${target}"
   else
-    record "failed" "${label}: failed to create directory ${target}"
+    record "${STATUS_FAILED}" "${label}: failed to create directory ${target}"
   fi
 }
 
@@ -120,7 +126,7 @@ ensure_symlink() {
   local label="$3"
 
   if [[ ! -e "${source}" ]]; then
-    record "failed" "${label}: source ${source} does not exist in this repo"
+    record "${STATUS_FAILED}" "${label}: source ${source} does not exist in this repo"
     return 0
   fi
 
@@ -132,9 +138,9 @@ ensure_symlink() {
       # Symlink resolves to something that exists — compare real paths so a
       # workspace that was moved/re-cloned still counts as "up to date".
       if [[ "$(realpath "${target}")" == "${resolved_source}" ]]; then
-        record "skipped" "${label}: already linked to ${source} (up to date)"
+        record "${STATUS_SKIPPED}" "${label}: already linked to ${source} (up to date)"
       else
-        record "skipped" "${label}: symlink points elsewhere (skipped (local override))"
+        record "${STATUS_SKIPPED}" "${label}: symlink points elsewhere (skipped (local override))"
       fi
       return 0
     fi
@@ -150,7 +156,7 @@ ensure_symlink() {
     if rm -f "${target}" && ln -s "${source}" "${target}"; then
       record "updated" "${label}: relinked broken symlink ${target} -> ${source}"
     else
-      record "failed" "${label}: failed to relink broken symlink ${target}"
+      record "${STATUS_FAILED}" "${label}: failed to relink broken symlink ${target}"
     fi
     return 0
   fi
@@ -158,19 +164,19 @@ ensure_symlink() {
   if [[ -e "${target}" ]]; then
     # Exists and is a real file/directory, not a symlink at all — a
     # contributor's local override. Never clobber it.
-    record "skipped" "${label}: exists and is not a symlink (skipped (local override))"
+    record "${STATUS_SKIPPED}" "${label}: exists and is not a symlink (skipped (local override))"
     return 0
   fi
 
   if [[ "${DRY_RUN}" -eq 1 ]]; then
-    record "created" "${label}: would create symlink ${target} -> ${source}"
+    record "${STATUS_CREATED}" "${label}: would create symlink ${target} -> ${source}"
     return 0
   fi
 
   if ln -s "${source}" "${target}"; then
-    record "created" "${label}: created symlink ${target} -> ${source}"
+    record "${STATUS_CREATED}" "${label}: created symlink ${target} -> ${source}"
   else
-    record "failed" "${label}: failed to create symlink ${target}"
+    record "${STATUS_FAILED}" "${label}: failed to create symlink ${target}"
   fi
 }
 
@@ -189,7 +195,7 @@ ensure_dir_of_symlinks() {
   local label="$3"
 
   if [[ ! -d "${source_dir}" ]]; then
-    record "failed" "${label}: source directory ${source_dir} does not exist in this repo"
+    record "${STATUS_FAILED}" "${label}: source directory ${source_dir} does not exist in this repo"
     return 0
   fi
 
@@ -200,9 +206,9 @@ ensure_dir_of_symlinks() {
   # directory-level symlink, then re-run this script).
   if [[ -L "${target_dir}" ]]; then
     if [[ -e "${target_dir}" && "$(realpath "${target_dir}")" == "$(realpath "${source_dir}")" ]]; then
-      record "skipped" "${label}: already linked as a whole directory (old-style install, up to date)"
+      record "${STATUS_SKIPPED}" "${label}: already linked as a whole directory (old-style install, up to date)"
     else
-      record "skipped" "${label}: exists as a symlink elsewhere (skipped (local override))"
+      record "${STATUS_SKIPPED}" "${label}: exists as a symlink elsewhere (skipped (local override))"
     fi
     return 0
   fi
