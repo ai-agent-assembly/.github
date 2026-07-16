@@ -13,7 +13,7 @@ Verify anything version-related at run time — the ladder moves.
 ## Field IDs
 | Field | Key | Type / notes |
 |---|---|---|
-| Components | `customfield_10041` | labels-type (array of strings); value = org-relative repo name |
+| Components | `components` (native) | **native** Jira field, *not* a custom field — set as `[{"name": "<repo>"}]`; value = org-relative repo name. `customfield_10041` is **null** on AAASM (verified 2026-07-16) — do not use it |
 | Story points | `customfield_10016` | number; **Story/Task/Bug only — errors on Epic** |
 | Start date | `customfield_10015` | date `YYYY-MM-DD`; not on transition screen |
 | Due date | `duedate` | system date `YYYY-MM-DD`; not on transition screen |
@@ -21,6 +21,22 @@ Verify anything version-related at run time — the ladder moves.
 | Labels | `labels` | array of kebab strings |
 | Team | `customfield_10001` | bare UUID string (see above) |
 | Sprint | `customfield_10020` | scalar number |
+
+> **Field IDs are project/site-specific — verify, don't trust this table blindly.**
+> Custom-field numbers (`customfield_100xx`) are assigned per Jira *site* and per
+> *project*: the same concept gets a different ID on another site, and a concept
+> that is a **native** field on one project can be a **custom** field on another
+> (Components here is the native `components` field, *not* a custom field — despite
+> older notes citing `customfield_10041`, which returns null on AAASM). Before
+> relying on any ID below, confirm it against live project metadata:
+> ```
+> getJiraIssueTypeMetaWithFields(cloudId, AAASM, issueTypeId=<type>, requiredFieldsOnly=false)
+>   → fields[]   # each entry: .key (the ID to send) + .name + .schema
+> ```
+> or read a known-good ticket and see which field actually holds the value:
+> `getJiraIssue(key, fields=["components", "customfield_10041"])` → native
+> `components` populated, `customfield_10041` null ⇒ Components is native. Treat
+> every ID in this table as "last verified 2026-07-16", not immutable.
 
 ## Issue type IDs
 Task `10032` · Bug `10033` · Story `10034` · Epic `10035` · Subtask `10036`.
