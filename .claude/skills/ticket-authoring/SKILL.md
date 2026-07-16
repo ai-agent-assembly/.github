@@ -99,8 +99,21 @@ core** tag (SDKs are coupled to it), so the canonical Fix version is the
 `agent-assembly v0.0.1-<channel>.<n>` train even for SDK/docs/infra tickets.
 Only a pure SDK-only release uses that SDK's own train. To resolve *next*:
 query versions (see fields.md), find the latest `released:true` on the train
-(current), then the next `released:false` after it (next); create it via REST
-only if it's genuinely missing (MCP cannot create versions).
+(current), then the next `released:false` after it (next); if it's genuinely
+missing, create it per the **Fix Version lifecycle** runbook below (MCP cannot
+create versions — REST + a credentialed token, or the release owner).
+
+### 5b. Planning metadata — versions & goals
+Beyond one ticket, two planning objects need managing:
+- **Fix Versions** — list / resolve / **create the next** / **release on ship**:
+  `references/fix-versions.md`. The MCP has **no version tool**; create/release
+  are REST-only (`/rest/api/3/version…`) and need an AAASM-scoped token (the env
+  creds 404), so version writes are a runbook / release-owner action — don't
+  claim to have created one you couldn't.
+- **Goals** — `references/goals.md`. Prefer **Epic-as-goal**: create the
+  objective Epic, attach children via `parent`, and cross-ticket dependencies via
+  `createIssueLink` — fully MCP-doable. The Atlassian **Jira Goals** entity is
+  UI/Atlas-only (no MCP/standard-REST CRUD).
 
 ### 6. Create (MCP)
 `createJiraIssue` with `cloudId`, `projectKey: AAASM`, `issueTypeName`,
