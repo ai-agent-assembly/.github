@@ -3,6 +3,10 @@
 **When to use:** you have a JIRA ticket (project `AAASM`) and need to go from
 "assigned" to "actually writing code."
 
+> To **create** a ticket (fields, title, type-correct description, Fix version),
+> use the `ticket-authoring` skill instead — this skill is for a ticket that
+> already exists.
+
 ## Steps
 
 1. **Read the ticket and its Epic.** Don't work from the ticket summary alone
