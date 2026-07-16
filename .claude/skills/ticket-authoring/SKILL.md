@@ -35,8 +35,12 @@ description templates are in `references/<type>.md`.
 Read `references/fields.md`. Confirm/resolve:
 - `cloudId` = `lightning-dust-mite.atlassian.net`; project `AAASM`.
 - Team (`customfield_10001`) = Pioneer UUID (bare string, see fields.md).
-- Field IDs: Components `customfield_10041`, Story points `customfield_10016`,
-  Start date `customfield_10015`, Due date `duedate`, Fix version `fixVersions`.
+- Field IDs: Components = the **native** `components` field (not `customfield_10041`,
+  which is null on AAASM), Story points `customfield_10016`, Start date
+  `customfield_10015`, Due date `duedate`, Fix version `fixVersions`.
+- Don't hardcode custom-field IDs — they are project/site-specific. If unsure an
+  ID still holds, verify against live metadata (`getJiraIssueTypeMetaWithFields`)
+  or a known-good ticket, per `references/fields.md`.
 - **Version ladder** — query the project versions and resolve the release
   train's *current released* and *next unreleased* version (see §5).
 
@@ -62,7 +66,7 @@ what it's for*. Scope = the module/area/repo. No ticket IDs or filler.
 
 ### 4. Required fields on create
 Set all of these (missing any = incomplete ticket):
-`issuetype`, `summary`, **Components** (`customfield_10041`), **Labels**,
+`issuetype`, `summary`, **Components** (native `components` field), **Labels**,
 **Assignee**, **Story points** (`customfield_10016` — Story/Task/Bug only;
 **not on the Epic screen**, Epics roll up), **Team** (`customfield_10001` =
 Pioneer), **Fix version** (`fixVersions` — see §5). Set **Start date**
@@ -119,9 +123,10 @@ Beyond one ticket, two planning objects need managing:
 `createJiraIssue` with `cloudId`, `projectKey: AAASM`, `issueTypeName`,
 `summary`, `description` (markdown), `parent` for Subtask/Story-under-Epic,
 and `additional_fields` for everything else (`customfield_10001`,
-`customfield_10041`, `customfield_10016`, `customfield_10015`, `duedate`,
-`fixVersions: [{"id": "<versionId>"}]`, `labels`, `components` is NOT the
-project's Components field — use `customfield_10041`).
+`customfield_10016`, `customfield_10015`, `duedate`,
+`fixVersions: [{"id": "<versionId>"}]`, `labels`, and Components via the
+**native** `components` field as `[{"name": "<repo>"}]` — *not* `customfield_10041`,
+which is null on this project).
 
 ### 7. Backfill mode (existing tickets)
 Use `editJiraIssue` with the same `fields`. Notes: `duedate`/`customfield_10015`
@@ -132,7 +137,7 @@ the specific field IDs.
 
 ## Gotchas
 - Env `JIRA_*` creds don't reach AAASM → MCP only.
-- `.github` is a valid `customfield_10041` value (leading dot OK).
+- `.github` is a valid Components (`components`) value (leading dot OK).
 - Story points field is absent from the Epic screen.
 - Labels: kebab-case; keep a small consistent taxonomy (e.g. `sonarcloud`,
   `tech-debt`, `coverage`, `follow-up`, `security`, `finding`, `sev-*`).
