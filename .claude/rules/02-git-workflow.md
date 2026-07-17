@@ -6,15 +6,17 @@ distinction). Applies across all `ai-agent-assembly` repos.
 ## Branch naming
 
 ```
-<version-or-phase>/<ticket>/<short_summary>
+<version-or-phase>/<ticket>/<type>/<short_summary>
 ```
 
 - `<version-or-phase>` — the milestone/sprint identifier (e.g. `v0.1.0`,
   `phase1`).
 - `<ticket>` — the exact Jira ticket reference (e.g. `AAASM-3941`).
+- `<type>` — the change category: `feat`, `fix`, `refactor`, `test`, `docs`,
+  `config`, `deps`, `remove`, or `lint`.
 - `<short_summary>` — 2-4 words in `snake_case`, max ~30 characters.
 
-Example: `v0.1.0/AAASM-3941/design_claude_rules`.
+Example: `v0.1.0/AAASM-3941/docs/design_claude_rules`.
 
 ## Worktrees
 
