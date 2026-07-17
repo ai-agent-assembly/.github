@@ -28,8 +28,8 @@
    starting work**, including which branch/worktree you're using. This is
    the signal to other contributors (and other agents working the same
    Epic) that the ticket is claimed.
-5. **Determine the branch name**: `<release-or-phase>/<ticket>/<type>/<short_summary>`
-   (see `CLAUDE.md` / `AGENTS.md` for the full convention and type values).
+5. **Determine the branch name**: `<release-or-phase>/<ticket>/<short_summary>`
+   (see `CLAUDE.md` / `AGENTS.md` for the full convention).
    If stacking on a dependency branch, branch from that branch's tip, not
    from the default branch.
 6. **Create the worktree** for the branch (see `setup-dev-env` and
