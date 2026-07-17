@@ -15,7 +15,7 @@ logging system.
 
 - **Commit messages** reference the change's scope via the gitmoji format
   (`<emoji> (<scope>): <summary>`) and land on a branch named with the ticket
-  (`<version-or-phase>/<ticket>/<short_summary>`) — the ticket is always
+  (`<version-or-phase>/<ticket>/<type>/<short_summary>`) — the ticket is always
   derivable from the branch a commit lives on.
 - **PRs** link the Jira ticket explicitly: the PR title starts with
   `[<ticket>]`, and the PR body's Jira Ticket section links directly to it
