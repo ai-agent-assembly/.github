@@ -44,9 +44,8 @@ as from Claude Code:
 
 - **Commits:** `<emoji> (<scope>): <imperative summary>` (gitmoji.dev). One logical
   unit per commit; bisectable; utils/mocks/tests are separate preceding commits.
-- **Branch:** `<release-or-phase>/<ticket>/<type>/<short_summary>` —
-  e.g. `v0.0.1/AAASM-42/feat/add_agent_registry`. Types: feat/fix/refactor/test/docs/
-  config/deps/remove/lint.
+- **Branch:** `<release-or-phase>/<ticket>/<short_summary>` —
+  e.g. `v0.0.1/AAASM-42/add_agent_registry`.
 - **PR title:** `[<ticket>] <emoji> (<scope>): <summary>`; body follows the repo's PR
   template; ≥1 Pioneer-team approval. **Never merge to base directly — PR only.**
 - **Worktrees:** develop each ticket in a worktree off the latest default branch so
