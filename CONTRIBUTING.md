@@ -13,31 +13,17 @@ This guide describes the org-wide conventions that apply across all repositories
 
 ## Branch naming
 
-All feature and fix branches follow this four-part format:
+All feature and fix branches follow this three-part format:
 
 ```
-<release-or-phase>/<ticket-number>/<type>/<short-summary>
+<release-or-phase>/<ticket>/<short-summary>
 ```
 
 - `<release-or-phase>` — milestone or sprint identifier (e.g., `v0.0.1`, `phase1`)
-- `<ticket-number>` — Jira ticket reference (e.g., `AAASM-1316`)
-- `<type>` — change category, one of:
-
-  | Type | When to use |
-  |---|---|
-  | `feat` | New feature or capability |
-  | `fix` | Bug fix |
-  | `refactor` | Refactor with no behavior change |
-  | `test` | Test-only change |
-  | `docs` | Documentation change |
-  | `config` | Configuration / CI change |
-  | `deps` | Dependency upgrade |
-  | `remove` | Deletion or removal |
-  | `lint` | Lint or type-error fix |
-
+- `<ticket>` — Jira ticket reference (e.g., `AAASM-1316`)
 - `<short-summary>` — 2–4 words in `snake_case`, max 30 characters
 
-Example: `v0.0.1/AAASM-42/feat/add_agent_registry`
+Example: `v0.0.1/AAASM-42/add_agent_registry`
 
 ## Commit messages
 
