@@ -69,12 +69,20 @@ Set all of these (missing any = incomplete ticket):
 `issuetype`, `summary`, **Components** (native `components` field), **Labels**,
 **Assignee**, **Story points** (`customfield_10016` — Story/Task/Bug only;
 **not on the Epic screen**, Epics roll up), **Team** (`customfield_10001` =
-Pioneer), **Fix version** (`fixVersions` — see §5). Set **Start date**
-(`customfield_10015`) and **Due date** (`duedate`) when planning.
+Pioneer), **Fix version** (`fixVersions` — see §5), **Priority** (native
+`priority` — see below). Set **Start date** (`customfield_10015`) and **Due
+date** (`duedate`) when planning.
 
 **Story points** use the Fibonacci scale (1/2/3/5/8/13) and **Labels** come from
 the canonical taxonomy — both defined in `references/estimation-and-labels.md`
 (≥8 pts ⇒ split; ≥1 work-type label; don't duplicate fields as labels).
+
+**Priority** mirrors the verified `sev-*` severity label, which is the source of
+truth: `sev-high`→High, `sev-medium`→Medium, `sev-low`→Low. Re-set it whenever
+`sev-*` is re-triaged so the two can't contradict (boards sort on native
+`priority`). Non-finding tickets take a priority by judgment (default Medium).
+Field id + the full level set are in `references/fields.md`; the mapping lives
+next to the severity labels in `references/estimation-and-labels.md`.
 
 **Components = the org-relative GitHub repo name** the ticket targets
 (`agent-assembly`, `python-sdk`, `node-sdk`, `go-sdk`, `docs`, `examples`,
