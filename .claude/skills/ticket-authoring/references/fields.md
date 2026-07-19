@@ -21,6 +21,7 @@ Verify anything version-related at run time — the ladder moves.
 | Labels | `labels` | array of kebab strings |
 | Team | `customfield_10001` | bare UUID string (see above) |
 | Sprint | `customfield_10020` | scalar number |
+| Priority | `priority` (native) | system field; set as `{"name": "<level>"}` (or `{"id": "<id>"}`). Levels (Jira default scheme): Highest `1`, High `2`, Medium `3`, Low `4`, Lowest `5`. Mirror the verified `sev-*` label — see the priority↔severity rule in `estimation-and-labels.md` |
 
 > **Field IDs are project/site-specific — verify, don't trust this table blindly.**
 > Custom-field numbers (`customfield_100xx`) are assigned per Jira *site* and per

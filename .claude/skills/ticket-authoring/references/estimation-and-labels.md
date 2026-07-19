@@ -34,6 +34,17 @@ source/severity/lifecycle where they apply; keep the set tight (usually 2–4).
 
 **Lifecycle**: `follow-up` · `blocked` · `spike`
 
+### Priority ↔ severity
+
+The native `priority` field must **mirror the verified `sev-*` label**, which is
+the single source of truth for a finding's severity: `sev-high`→**High**,
+`sev-medium`→**Medium**, `sev-low`→**Low**. Set (or re-set) `priority` whenever
+the `sev-*` label is set or re-triaged so the two never contradict — Jira boards
+sort and triage on native `priority`, so an unmanaged value silently drives
+prioritization. Tickets with no `sev-*` label (non-findings) take a priority by
+judgment; when in doubt leave the project default (Medium). Field id in
+`fields.md`.
+
 **Initiative** — per-program tags added as needed, e.g. `user-journey-sim`,
 `track-nondev` (existing). Reuse an existing initiative tag; don't invent
 near-duplicates.

@@ -25,7 +25,9 @@ text/stack/log lines verbatim; attach screenshot for UI defects.
   (e.g. rc.5) · SDK/runtime version · relevant config/flags · data/account state.
 
 **Impact / scope** — who/what is affected, severity, frequency (always / race /
-specific inputs), any workaround.
+specific inputs), any workaround. Set the native `priority` to mirror the
+verified `sev-*` label (High/Medium/Low) — see the priority↔severity rule in
+`estimation-and-labels.md`.
 
 **Root cause** — fill once known (which code, why); link the offending
 line(s)/commit.
