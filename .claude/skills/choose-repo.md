@@ -24,13 +24,13 @@ Start from the task, not the repo you happen to be sitting in:
    | Python-specific SDK shim/packaging/docs | `python-sdk` |
    | Node/TypeScript-specific SDK shim/packaging/docs | `node-sdk` |
    | Go-specific SDK shim/packaging/docs | `go-sdk` |
-   | Public docs site content | `agent-assembly-docs` |
-   | Internal/private docs site content | `inner-document` |
-   | Cloud control plane (FastAPI/React/persistence) | `agent-assembly-cloud` |
+   | Public docs site content | `docs` |
+   | Internal/private docs site content | `internal-docs` |
+   | Cloud control plane (FastAPI/React/persistence) | `cloud` |
    | Enterprise-only Rust extensions | `agent-assembly-enterprise` |
-   | Runnable demo/sample code | `agent-assembly-examples` |
-   | Cross-repo or private e2e test suites | `agent-assembly-integration-tests` / `agent-assembly-private-e2e` |
-   | Homebrew formula/tap | `homebrew-agent-assembly` |
+   | Runnable demo/sample code | `examples` |
+   | Cross-repo or private e2e test suites | `e2e-public` / `e2e-private` |
+   | Homebrew formula/tap | `homebrew-tap` |
    | Org community-health files, reusable CI workflow templates, org-level AI baseline (`CLAUDE.md`/`AGENTS.md`/`.claude/`) | `.github` (this repo) or `.github-private` |
    | Protocol/spec content | `agent-assembly` monorepo — **not** `agent-assembly-spec` (archived; see project policy in `CLAUDE.md`) |
 
