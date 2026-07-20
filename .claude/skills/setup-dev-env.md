@@ -29,7 +29,7 @@ one or more `ai-agent-assembly` repos.
    ```
    and confirm which remote name resolves to `ai-agent-assembly/<repo>`.
    **Never assume `origin`.** Also confirm the default branch — most repos
-   use `master`, but `agent-assembly-docs` and `inner-document` use `main`:
+   use `master`, but `docs` and `internal-docs` use `main`:
    ```
    git ls-remote --symref <remote> HEAD
    ```

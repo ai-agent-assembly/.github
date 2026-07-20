@@ -14,7 +14,7 @@ note: not every red signal is a product bug.
 | Code produces wrong output, crashes, or violates a documented contract | **Product bug** | File as a Bug-type ticket against the owning repo. |
 | CI/infra fails for a reason unrelated to the code under test (e.g. GitHub Actions billing-block, a flaky external dependency, a missing local toolchain) | **Environment/tooling blocker** | Do not file as a product bug. Confirm via job annotations or reproduction; note it as infra and validate locally instead of treating it as a code defect. |
 | New capability requested that doesn't exist yet | **Feature** | File as a Story (or Subtask if small and unambiguous) with acceptance criteria. |
-| Content is missing, wrong, or unclear in docs/README/spec | **Docs** | File as a docs-type ticket against the repo that owns that content (see `choose-repo` — usually `agent-assembly-docs`/`inner-document`, or the monorepo for the Protocol Specification). |
+| Content is missing, wrong, or unclear in docs/README/spec | **Docs** | File as a docs-type ticket against the repo that owns that content (see `choose-repo` — usually `docs`/`internal-docs`, or the monorepo for the Protocol Specification). |
 
 If unsure whether something is a genuine product bug versus an environment
 artifact, reproduce it locally before filing — don't file from CI logs alone.
