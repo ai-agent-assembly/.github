@@ -297,12 +297,21 @@ def render_repo_table(repos: list[dict]) -> str:
     (see AAASM-4410). Keeping header + separator + body in one block, with
     the sentinels wrapping the whole table, is the only shape that survives
     GFM parsing.
+
+    Visibility-filtered like render_registry_json (ADR 0014): profile/README.md
+    is a public artifact, so a private repo's slug/metadata MUST NOT leak into
+    it. The same public-only predicate is applied here — a repo whose
+    ``visibility`` is missing or not exactly ``public`` is excluded, so adding a
+    private repo to the SoT without a correct ``visibility: private`` marker
+    fails closed (dropped) rather than fails open (published).
     """
     lines: list[str] = [
         "| Repo | Purpose | Version | Base branch health | Activity |",
         "| --- | --- | --- | --- | --- |",
     ]
     for r in repos:
+        if (r.get("visibility") or "public") != "public":
+            continue
         slug = str(r["slug"])
         repo_full = str(r["repo"])
         role = str(r["role"])
