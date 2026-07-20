@@ -14,7 +14,6 @@
     "docs": "https://docs.agent-assembly.com",
     "status": "https://status.agent-assembly.com",
     "installer": "https://agent-assembly.com/install.sh",
-    "installer_alt": "https://tool.agent-assembly.dev",
     "docs_sdk_base": {
       "python": "https://docs.agent-assembly.com/python/",
       "node": "https://docs.agent-assembly.com/node/",
