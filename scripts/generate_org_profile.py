@@ -506,7 +506,13 @@ def main(argv: list[str]) -> int:
         print("Run: python3 scripts/generate_org_profile.py", file=sys.stderr)
         return 1
 
+    # Every write target is one of this script's own generated-artifact paths
+    # (module constants derived from __file__), never user input. Enforce that
+    # invariant explicitly so an unexpected key can never reach the write sink.
+    allowed_outputs = frozenset({README_PATH, REGISTRY_JSON_PATH})
     for p in drifted:
+        if p not in allowed_outputs:
+            raise ValueError(f"refusing to write path outside known artifacts: {p!r}")
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(artifacts[p], encoding="utf-8")
         print(f"Wrote {p.relative_to(REPO_ROOT)}.")
