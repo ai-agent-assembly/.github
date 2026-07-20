@@ -20,6 +20,66 @@
 
 org: ai-agent-assembly
 
+# ---------------------------------------------------------------------------
+# Canonical org-shared metadata (ADR 0014).
+# ---------------------------------------------------------------------------
+# These sections widen this file from "profile-README source of truth" into the
+# org's single canonical registry for non-version shared metadata. Each value
+# has exactly ONE owner here — no consumer may re-declare it. The URL values are
+# OWNED by ADR 0007/0008 (public domain & host contract); this registry only
+# STORES them so they exist once, it does not re-decide them. When ADR 0007/0008
+# change a host, update it here in the same change.
+
+# Product / org display identity and the publicly-published contact address.
+# The org *slug* is owned by the top-level `org:` key above — not repeated here,
+# so a rename has one owner.
+product:
+  name: "AI Agent Assembly"
+  org_display_name: "AI Agent Assembly"
+  security_email: "security@agent-assembly.dev"
+
+# Canonical public hosts. Values are owned by ADR 0007/0008 and only stored here.
+urls:
+  marketing: "https://agent-assembly.com"
+  www: "https://www.agent-assembly.com"
+  app: "https://app.agent-assembly.com"
+  api: "https://api.agent-assembly.com"
+  docs: "https://docs.agent-assembly.com"
+  status: "https://status.agent-assembly.com"
+  # Canonical installer is the apex /install.sh; the .dev host is a kept alternate.
+  installer: "https://agent-assembly.com/install.sh"
+  installer_alt: "https://tool.agent-assembly.dev"
+  # Per-SDK canonical documentation base paths under the docs host.
+  docs_sdk_base:
+    python: "https://docs.agent-assembly.com/python/"
+    node: "https://docs.agent-assembly.com/node/"
+    go: "https://docs.agent-assembly.com/go/"
+
+# Governance-doc link contract. `default_branch` is the .github repo's branch
+# where the baseline docs live; cross-repo links drift (`main` vs `master`)
+# without a single owner. `baseline_doc_base` embeds that branch so consumers
+# build blob URLs from one place.
+governance:
+  default_branch: master
+  baseline_doc_base: "https://github.com/ai-agent-assembly/.github/blob/master"
+
+# Public Jira coordination constants (project AAASM). Only already-public IDs
+# live here; the Components vocabulary (which mixes private-repo slugs) is
+# deliberately NOT stored, per the context-boundary rules.
+jira:
+  site: "lightning-dust-mite.atlassian.net"
+  project_key: AAASM
+  project_id: "10006"
+  board_id: 7
+  # Components is the NATIVE `components` field — customfield_10041 is null on
+  # AAASM and must not be used.
+  components_field: components
+  fields:
+    team: customfield_10001
+    story_points: customfield_10016
+    start_date: customfield_10015
+    sprint: customfield_10020
+
 # Repository Status table rows. The generator emits one Markdown table row per
 # entry, in this order, inside the "repo_table" bounded section.
 #
@@ -27,6 +87,9 @@ org: ai-agent-assembly
 #   slug            - short repo name for the badge label (e.g. "agent-assembly")
 #   repo            - "<org>/<repo>" GitHub slug for URL construction
 #   default_branch  - branch used for CI / last-commit / commits URLs
+#   visibility      - "public" | "private" — a generated PUBLIC artifact must
+#                     never emit a private repo's slug/metadata (ADR 0014). Every
+#                     entry here is public; private repos are not listed at all.
 #   role            - short human description in the "Purpose" column
 #   badge:
 #     label_color   - shields.io color for the name badge (hex, no leading #)
@@ -44,6 +107,7 @@ repos:
     repo: ai-agent-assembly/agent-assembly
     default_branch: master
     role: "Core Rust monorepo: gateway, policy engine, CLI, API, dashboard"
+    visibility: public
     badge:
       label_color: "000000"
       logo: rust
@@ -62,6 +126,7 @@ repos:
     repo: ai-agent-assembly/python-sdk
     default_branch: master
     role: "Python SDK (PyO3 native + pure-Python client)"
+    visibility: public
     badge:
       label_color: "3776AB"
       logo: python
@@ -81,6 +146,7 @@ repos:
     repo: ai-agent-assembly/node-sdk
     default_branch: master
     role: "TypeScript SDK (napi-rs native + JS client)"
+    visibility: public
     badge:
       label_color: "339933"
       logo: node.js
@@ -100,6 +166,7 @@ repos:
     repo: ai-agent-assembly/go-sdk
     default_branch: master
     role: "Go SDK"
+    visibility: public
     badge:
       label_color: "00ADD8"
       logo: go
@@ -119,6 +186,7 @@ repos:
     repo: ai-agent-assembly/.github
     default_branch: master
     role: "Organization profile, templates, support, and community files"
+    visibility: public
     badge:
       label_color: "181717"
       logo: github
@@ -138,6 +206,7 @@ repos:
     repo: ai-agent-assembly/homebrew-tap
     default_branch: master
     role: "Homebrew tap for `aasm`"
+    visibility: public
     badge:
       label_color: "FBB040"
       logo: homebrew
@@ -158,6 +227,7 @@ repos:
     repo: ai-agent-assembly/docs
     default_branch: main
     role: "Public documentation site"
+    visibility: public
     badge:
       label_color: "4051B5"
       logo: materialformkdocs
@@ -178,6 +248,7 @@ repos:
     repo: ai-agent-assembly/agent-assembly-spec
     default_branch: master
     role: "Shared specifications and protocol contracts"
+    visibility: public
     badge:
       label_color: "6E40C9"
       logo: openapiinitiative
@@ -197,6 +268,7 @@ repos:
     repo: ai-agent-assembly/examples
     default_branch: master
     role: "Runnable sample code for every SDK plus policy, approval, audit, trace, and runtime workflows"
+    visibility: public
     badge:
       label_color: "22C55E"
       logo: github
@@ -218,6 +290,7 @@ repos:
     repo: ai-agent-assembly/arena
     default_branch: main
     role: "Public trial ground for agent-assembly governance: cross-framework adversarial trials, behavior profiles, match reports"
+    visibility: public
     badge:
       label_color: "DC2626"
       logo: github

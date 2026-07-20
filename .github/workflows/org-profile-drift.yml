@@ -1,10 +1,10 @@
-# profile/README.md is the org front door (rendered by GitHub at
-# github.com/ai-agent-assembly). Its per-SDK badge tables and install snippets
-# are generated from metadata/org-profile.yaml by scripts/generate_org_profile.py.
-# This gate fails if the bounded blocks in profile/README.md have drifted from
-# what the generator would produce — on any PR/push that touches the SoT, the
-# generator, or the README itself, and weekly to catch drift introduced by
-# hand-edits or by an unnoticed generator change.
+# metadata/org-profile.yaml is the canonical org-shared metadata registry
+# (ADR 0014). scripts/generate_org_profile.py derives two artifacts from it: the
+# org front-door profile/README.md (badge tables + install snippets) and
+# metadata/generated/registry.json (the machine-readable projection cross-repo
+# consumers read). This gate fails if either derived artifact has drifted from
+# what the generator would produce — on any PR/push that touches the registry,
+# the generator, or a generated artifact, and weekly to catch stealth hand-edits.
 name: Org profile drift check
 
 on:
@@ -12,6 +12,7 @@ on:
     branches: [master]
     paths:
       - metadata/org-profile.yaml
+      - metadata/generated/registry.json
       - scripts/generate_org_profile.py
       - profile/README.md
       - .github/workflows/org-profile-drift.yml
@@ -19,6 +20,7 @@ on:
     branches: [master]
     paths:
       - metadata/org-profile.yaml
+      - metadata/generated/registry.json
       - scripts/generate_org_profile.py
       - profile/README.md
       - .github/workflows/org-profile-drift.yml
@@ -35,7 +37,7 @@ concurrency:
 
 jobs:
   drift:
-    name: profile/README.md matches SoT
+    name: generated artifacts match the registry
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
