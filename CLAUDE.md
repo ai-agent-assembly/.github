@@ -27,11 +27,11 @@ ships the `aasm` binary. See `profile/README.md` for the full repo map.
 |---|---|
 | `agent-assembly` | Core Rust monorepo — gateway, policy, eBPF, proxy, FFI, CLI, dashboard. **Source of truth** for protocol + the shared `aa-*` crates. |
 | `python-sdk` / `node-sdk` / `go-sdk` | Language SDKs (thin FFI shim over `aa-sdk-client`, pinned by git SHA) |
-| `agent-assembly-cloud` | SaaS / cloud control plane (FastAPI + React + Rust persistence) |
+| `cloud` | SaaS / cloud control plane (FastAPI + React + Rust persistence) |
 | `agent-assembly-enterprise` | Enterprise Rust extensions (SaaS-only) |
-| `agent-assembly-examples` | Runnable governance demo scenarios |
-| `agent-assembly-integration-tests` / `agent-assembly-private-e2e` | Cross-repo + private e2e suites |
-| `agent-assembly-docs` / `inner-document` | Public docs site / internal docs site |
+| `examples` | Runnable governance demo scenarios |
+| `e2e-public` / `e2e-private` | Cross-repo + private e2e suites |
+| `docs` / `internal-docs` | Public docs site / internal docs site |
 | `homebrew-tap` | Homebrew tap for the `aasm` CLI |
 | `.github` / `.github-private` | Org community-health, reusable workflow-templates, this baseline |
 | `agent-assembly-spec` | **Archived** — the protocol spec lives in the `agent-assembly` monorepo |
@@ -54,8 +54,8 @@ ships the `aasm` binary. See `profile/README.md` for the full repo map.
   **`remote`** in some checkouts and **`origin`** in others; a local `origin` is
   sometimes a personal fork (notably `go-sdk`). Run `git remote -v` and push to the
   one pointing at `ai-agent-assembly`. **Never assume `origin`.**
-- **Default branch varies:** most repos use `master`; `agent-assembly-docs` and
-  `inner-document` use `main`. Confirm with `git ls-remote --symref <remote> HEAD`.
+- **Default branch varies:** most repos use `master`; `docs` and
+  `internal-docs` use `main`. Confirm with `git ls-remote --symref <remote> HEAD`.
 - The org id is **lowercase `ai-agent-assembly`** everywhere (Cargo git URLs, Go
   module paths, Codecov slugs, docs). An `AI-agent-assembly` remote URL is an old
   casing that redirects — harmless on push, but write lowercase in code/docs.
@@ -72,7 +72,7 @@ rather than waiting on CI. Never `--no-verify`; never force-push.
 
 - Cloud: `lightning-dust-mite.atlassian.net`. Hierarchy Epic → Story → Subtask
   (one Subtask ≈ one commit) + a `Verify …` subtask per Story.
-- **Component** (`customfield_10041`, a label-type field) = the GitHub repo, 1:1,
+- **Component** (Jira's native `components` field) = the GitHub repo, 1:1,
   value = the **org-relative repo name**, short and lowercase, not org-prefixed
   (e.g. `docs`, `python-sdk`, `.github` — not `ai-agent-assembly/docs`).
   **Team** (`customfield_10001`) = Pioneer.

@@ -154,7 +154,7 @@ repos:
       - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/homebrew-tap?label=PRs)](https://github.com/ai-agent-assembly/homebrew-tap/pulls)"
       - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/homebrew-tap?label=last)](https://github.com/ai-agent-assembly/homebrew-tap/commits/master)"
 
-  - slug: agent-assembly-docs
+  - slug: docs
     repo: ai-agent-assembly/docs
     default_branch: main
     role: "Public documentation site"
@@ -193,7 +193,7 @@ repos:
       - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/agent-assembly-spec?label=PRs)](https://github.com/ai-agent-assembly/agent-assembly-spec/pulls)"
       - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/agent-assembly-spec?label=last)](https://github.com/ai-agent-assembly/agent-assembly-spec/commits/master)"
 
-  - slug: agent-assembly-examples
+  - slug: examples
     repo: ai-agent-assembly/examples
     default_branch: master
     role: "Runnable sample code for every SDK plus policy, approval, audit, trace, and runtime workflows"
