@@ -22,7 +22,7 @@ artifact, reproduce it locally before filing — don't file from CI logs alone.
 ## 2. Which repo/component?
 
 Use the `choose-repo` skill. Set the ticket's Component field
-(`customfield_10041`) to the owning repo — this is a 1:1 mapping and other
+(Jira's native `components` field) to the owning repo — this is a 1:1 mapping and other
 skills/agents rely on it being accurate.
 
 ## 3. Epic or standalone?

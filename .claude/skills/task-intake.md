@@ -14,7 +14,7 @@
    Epic for the broader goal the ticket serves. If the ticket is a Subtask,
    also read the parent Story.
 2. **Confirm the repo.** Check the Component field
-   (`customfield_10041`) — see the `choose-repo` skill if it's unset or looks
+   (Jira's native `components` field) — see the `choose-repo` skill if it's unset or looks
    wrong.
 3. **Check for blocking dependencies.** Look for:
    - JIRA issue links (`blocks` / `is blocked by`).

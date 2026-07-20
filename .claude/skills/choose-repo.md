@@ -9,7 +9,7 @@ most common source of wasted PRs in this org.
 Start from the task, not the repo you happen to be sitting in:
 
 1. **Does a JIRA ticket exist?** Check its Component field
-   (`customfield_10041`) first — it is a 1:1 mapping to the GitHub repo
+   (Jira's native `components` field) first — it is a 1:1 mapping to the GitHub repo
    (`ai-agent-assembly/<repo>`) and is authoritative. Don't second-guess it
    from the ticket title; if it looks wrong, ask rather than silently
    re-routing (see `feedback_repo_routing` class of mistakes: don't trust a

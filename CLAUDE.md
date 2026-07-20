@@ -72,7 +72,7 @@ rather than waiting on CI. Never `--no-verify`; never force-push.
 
 - Cloud: `lightning-dust-mite.atlassian.net`. Hierarchy Epic → Story → Subtask
   (one Subtask ≈ one commit) + a `Verify …` subtask per Story.
-- **Component** (`customfield_10041`, a label-type field) = the GitHub repo, 1:1,
+- **Component** (Jira's native `components` field) = the GitHub repo, 1:1,
   value = the **org-relative repo name**, short and lowercase, not org-prefixed
   (e.g. `docs`, `python-sdk`, `.github` — not `ai-agent-assembly/docs`).
   **Team** (`customfield_10001`) = Pioneer.
