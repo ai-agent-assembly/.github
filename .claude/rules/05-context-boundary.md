@@ -18,7 +18,7 @@ repos.
 ## Cross-repo boundaries
 
 This is a **multi-repo org** — several repos are private
-(`agent-assembly-cloud`, `agent-assembly-enterprise`) and several are public
+(`cloud`, `agent-assembly-enterprise`) and several are public
 (`agent-assembly`, the SDKs, `.github`, docs sites). When working across
 repos in the same session:
 
