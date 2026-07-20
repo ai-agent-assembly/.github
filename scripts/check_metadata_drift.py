@@ -67,15 +67,18 @@ class Rule:
     allow: tuple[str, ...] = field(default_factory=tuple)
 
 
+# Shared rationale for every AAASM-4341 pre-rename slug rule.
+_RENAME_4341 = "repo renamed (AAASM-4341)"
+
 # The rename map (AAASM-4341) + the drifted Jira field + the drifted installer
 # alias. `agent-assembly-enterprise` and `agent-assembly-spec` deliberately KEEP
 # their prefixed names and are intentionally absent here.
 RULES: tuple[Rule, ...] = (
-    Rule("agent-assembly-cloud", "cloud", "repo renamed (AAASM-4341)", "none"),
-    Rule("agent-assembly-examples", "examples", "repo renamed (AAASM-4341)", "public_slug"),
-    Rule("agent-assembly-docs", "docs", "repo renamed (AAASM-4341)", "public_slug"),
-    Rule("agent-assembly-integration-tests", "e2e-public", "repo renamed (AAASM-4341)", "none"),
-    Rule("agent-assembly-private-e2e", "e2e-private", "repo renamed (AAASM-4341)", "none"),
+    Rule("agent-assembly-cloud", "cloud", _RENAME_4341, "none"),
+    Rule("agent-assembly-examples", "examples", _RENAME_4341, "public_slug"),
+    Rule("agent-assembly-docs", "docs", _RENAME_4341, "public_slug"),
+    Rule("agent-assembly-integration-tests", "e2e-public", _RENAME_4341, "none"),
+    Rule("agent-assembly-private-e2e", "e2e-private", _RENAME_4341, "none"),
     Rule(
         "customfield_10041",
         "the native `components` field",
