@@ -201,7 +201,7 @@ Codex. Comparing content side-by-side:
 **Genuinely duplicated in `AGENTS.md` (Codex loses nothing here):** product
 paragraph, repo map, commit/branch/PR string formats, remote-naming quirk
 (`remote` vs `origin`, lowercase org id), CI-billing-block reality, JIRA
-field IDs (Component `customfield_10041`, Team `customfield_10001`),
+field IDs (Component = the native `components` field, Team `customfield_10001`),
 self-hosting/spec-location project policy.
 
 **Present only in `.claude/rules/*.md`, with zero inline content in

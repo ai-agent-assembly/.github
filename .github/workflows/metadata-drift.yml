@@ -1,0 +1,40 @@
+# ADR 0014's lint-flag-on-hardcoded-value drift gate. Distinct from
+# org-profile-drift.yml (which regenerates the bounded/generated artifacts and
+# fails on diff): this job scans the whole tree for metadata literals the
+# canonical registry supersedes — pre-rename repo slugs, the null
+# customfield_10041 Component id, the drifted installer alias — and fails on any
+# stray copy. A stale literal can be introduced in ANY file, so this gate has no
+# path filter: it runs on every PR and push to master, and weekly to catch a
+# stealth hand-edit. It is blocking by contract (ADR 0014, Decision §4).
+name: Metadata drift lint
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  schedule:
+    - cron: "31 6 * * 1"  # Mondays — catch stealth hand-edits
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hardcoded-value-lint:
+    name: no hardcoded value contradicts the registry
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+
+      # stdlib-only checker — the runner's built-in python3 is sufficient.
+      - name: Show Python version
+        run: python3 --version
+
+      - name: Run hardcoded-metadata drift lint
+        run: python3 scripts/check_metadata_drift.py

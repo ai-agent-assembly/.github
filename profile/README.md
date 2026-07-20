@@ -26,7 +26,7 @@ AI Agent Assembly is an open-source governance platform for AI agents. It enforc
 | [![arena](https://img.shields.io/badge/arena-arena-DC2626?logo=github)](https://github.com/ai-agent-assembly/arena) | Public trial ground for agent-assembly governance: cross-framework adversarial trials, behavior profiles, match reports | — | [![CI](https://github.com/ai-agent-assembly/arena/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ai-agent-assembly/arena/actions/workflows/ci.yml?query=branch%3Amain) | [![issues](https://img.shields.io/github/issues/ai-agent-assembly/arena?label=issues)](https://github.com/ai-agent-assembly/arena/issues) [![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/arena?label=PRs)](https://github.com/ai-agent-assembly/arena/pulls) [![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/arena?label=last)](https://github.com/ai-agent-assembly/arena/commits/main) |
 <!-- END GENERATED: repo_table -->
 
-> **Sample code starts here:** [**agent-assembly-examples**](https://github.com/ai-agent-assembly/examples) is the canonical entrypoint for learning by running small, framework-specific examples for Python, Node.js/TypeScript, Go, policy enforcement, approvals, audit, trace, and runtime workflows.
+> **Sample code starts here:** [**examples**](https://github.com/ai-agent-assembly/examples) is the canonical entrypoint for learning by running small, framework-specific examples for Python, Node.js/TypeScript, Go, policy enforcement, approvals, audit, trace, and runtime workflows.
 
 > **Governance trials happen here:** [**arena**](https://github.com/ai-agent-assembly/arena) is the public trial ground for agent-assembly governance — agents enter, agent-assembly defends, and every match leaves a report. Where `examples` is small, instructional, happy-path samples, `arena` runs cross-framework adversarial trials, behavior profiles, and deterministic mock/replay agents against policy under stress. Canonical docs: <https://docs.agent-assembly.com/arena/>.
 
@@ -82,8 +82,9 @@ go get github.com/ai-agent-assembly/go-sdk
 curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/master/scripts/install-cli.sh | sh
 ```
 
-> A short hosted alias (`https://install.ai-agent-assembly.dev`) is planned but
-> not yet live — use the `raw.githubusercontent.com` URL above for now.
+> A short hosted alias (`https://tool.agent-assembly.dev`, the registry's
+> `urls.installer_alt`) is planned but not yet live — use the
+> `raw.githubusercontent.com` URL above for now.
 <!-- END GENERATED: install_channels -->
 
 ## Release and Homebrew Notes

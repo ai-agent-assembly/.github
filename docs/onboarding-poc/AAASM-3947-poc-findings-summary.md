@@ -219,7 +219,7 @@ that doesn't exist, which is the worse of the two states.
   `go-sdk`, cloud/enterprise/spec placeholders) in both `CLAUDE.md` and
   `AGENTS.md` — this is the single largest chunk of org-specific content
   and the main thing `choose-repo.md`'s decision table depends on.
-- **JIRA field IDs** (`customfield_10041` for Component,
+- **JIRA field IDs** (the native `components` field for Component,
   `customfield_10001` for Team, `customfield_10020` for Sprint,
   `customfield_10016` for Story Points) and the `lightning-dust-mite`
   Atlassian Cloud id — entirely specific to this org's Jira instance and
