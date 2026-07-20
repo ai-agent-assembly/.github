@@ -92,8 +92,9 @@ RULES: tuple[Rule, ...] = (
     ),
     Rule(
         "install.ai-agent-assembly.dev",
-        "tool.agent-assembly.dev",
-        "installer alias is registry urls.installer_alt (ADR 0007/0008)",
+        "agent-assembly.com/install.sh",
+        "installer is registry urls.installer, the sole canonical installer "
+        "(ADR 0007; the tool.agent-assembly.dev alt was retired in AAASM-4931)",
         "url",
     ),
 )
