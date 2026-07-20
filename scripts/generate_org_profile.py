@@ -506,16 +506,18 @@ def main(argv: list[str]) -> int:
         print("Run: python3 scripts/generate_org_profile.py", file=sys.stderr)
         return 1
 
-    # Every write target is one of this script's own generated-artifact paths
-    # (module constants derived from __file__), never user input. Enforce that
-    # invariant explicitly so an unexpected key can never reach the write sink.
-    allowed_outputs = frozenset({README_PATH, REGISTRY_JSON_PATH})
-    for p in drifted:
-        if p not in allowed_outputs:
-            raise ValueError(f"refusing to write path outside known artifacts: {p!r}")
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(artifacts[p], encoding="utf-8")
-        print(f"Wrote {p.relative_to(REPO_ROOT)}.")
+    # Write each generated artifact to its own module-constant path. Referencing
+    # the named constants directly (rather than a loop variable) keeps every
+    # write sink provably constant — no user-controlled path can reach it, and
+    # static taint analysis can see that without guessing.
+    if README_PATH in drifted:
+        README_PATH.parent.mkdir(parents=True, exist_ok=True)
+        README_PATH.write_text(artifacts[README_PATH], encoding="utf-8")
+        print(f"Wrote {README_PATH.relative_to(REPO_ROOT)}.")
+    if REGISTRY_JSON_PATH in drifted:
+        REGISTRY_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
+        REGISTRY_JSON_PATH.write_text(artifacts[REGISTRY_JSON_PATH], encoding="utf-8")
+        print(f"Wrote {REGISTRY_JSON_PATH.relative_to(REPO_ROOT)}.")
     return 0
 
 
