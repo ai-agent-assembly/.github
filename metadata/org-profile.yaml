@@ -46,9 +46,9 @@ urls:
   api: "https://api.agent-assembly.com"
   docs: "https://docs.agent-assembly.com"
   status: "https://status.agent-assembly.com"
-  # Canonical installer is the apex /install.sh; the .dev host is a kept alternate.
+  # `agent-assembly.com/install.sh` is the sole canonical installer — the
+  # legacy hosted installer alternate was retired in AAASM-4931.
   installer: "https://agent-assembly.com/install.sh"
-  installer_alt: "https://tool.agent-assembly.dev"
   # Per-SDK canonical documentation base paths under the docs host.
   docs_sdk_base:
     python: "https://docs.agent-assembly.com/python/"
@@ -362,7 +362,3 @@ install_channels:
     lang: sh
     commands:
       - "curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/master/scripts/install-cli.sh | sh"
-    note: |
-      > A short hosted alias (`https://tool.agent-assembly.dev`, the registry's
-      > `urls.installer_alt`) is planned but not yet live — use the
-      > `raw.githubusercontent.com` URL above for now.
