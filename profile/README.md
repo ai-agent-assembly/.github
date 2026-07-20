@@ -82,8 +82,9 @@ go get github.com/ai-agent-assembly/go-sdk
 curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/master/scripts/install-cli.sh | sh
 ```
 
-> A short hosted alias (`https://install.ai-agent-assembly.dev`) is planned but
-> not yet live — use the `raw.githubusercontent.com` URL above for now.
+> A short hosted alias (`https://tool.agent-assembly.dev`, the registry's
+> `urls.installer_alt`) is planned but not yet live — use the
+> `raw.githubusercontent.com` URL above for now.
 <!-- END GENERATED: install_channels -->
 
 ## Release and Homebrew Notes
