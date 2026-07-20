@@ -73,7 +73,7 @@ No follow-up bugfix ticket is needed as a result of this test.
 ## 2. Per-repo survey (read-only, no edits made)
 
 Representative sample: `agent-assembly` (core Rust monorepo), `python-sdk`
-(language SDK), `agent-assembly-docs` (docs site). Checked from each repo's
+(language SDK), `docs` (docs site). Checked from each repo's
 real path under `/Users/bryant/Bryant-Developments/AI-agent-assembly/`,
 cross-checked manually (`find`/`ls`) and via
 `scripts/validate-ai-workspace.sh <workspace> <repo>...`'s informational
@@ -84,7 +84,7 @@ cases:
 |---|---|---|---|---|
 | `agent-assembly` | Present (131 lines) | Absent | No — directory does not exist | No — directory does not exist |
 | `python-sdk` | Present (147 lines) | Absent | No — directory does not exist | No — directory does not exist |
-| `agent-assembly-docs` | Present (129 lines) | Absent | No — directory does not exist | No — directory does not exist |
+| `docs` | Present (129 lines) | Absent | No — directory does not exist | No — directory does not exist |
 
 Findings:
 
@@ -109,7 +109,7 @@ Findings:
 
 **No repo other than `ai-agent-assembly/.github` was modified by this
 ticket.** The per-repo survey above is read-only documentation of the
-current state of `agent-assembly`, `python-sdk`, and `agent-assembly-docs`
+current state of `agent-assembly`, `python-sdk`, and `docs`
 against the org onboarding scaffold. Per this ticket's acceptance criteria
 ("add repo-local overrides only where necessary"): no genuine, safe,
 in-scope gap requiring an override was found in any of the three surveyed
