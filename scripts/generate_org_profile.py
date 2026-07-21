@@ -310,7 +310,7 @@ def render_repo_table(repos: list[dict]) -> str:
         "| --- | --- | --- | --- | --- |",
     ]
     for r in repos:
-        if (r.get("visibility") or "public") != "public":
+        if r.get("visibility") != "public":
             continue
         slug = str(r["slug"])
         repo_full = str(r["repo"])
@@ -407,10 +407,10 @@ def render_registry_json(data: dict) -> str:
             "repo": r.get("repo"),
             "default_branch": r.get("default_branch"),
             "role": r.get("role"),
-            "visibility": r.get("visibility", "public"),
+            "visibility": r.get("visibility"),
         }
         for r in (data.get("repos") or [])
-        if (r.get("visibility") or "public") == "public"
+        if r.get("visibility") == "public"
     ]
     projection = {
         "_readme": (
