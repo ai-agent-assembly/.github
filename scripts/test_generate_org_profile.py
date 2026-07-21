@@ -53,10 +53,11 @@ def test_repo_table_fails_closed_on_missing_visibility() -> None:
     # published — the filter fails closed rather than fail-open.
     repo = _public_repo("mystery")
     del repo["visibility"]
-    # Absent visibility defaults to "public" (matches render_registry_json).
-    assert "mystery" in gen.render_repo_table([repo])
+    # Absent visibility is treated as non-public and dropped (matches
+    # render_registry_json): the filter requires an explicit "public" marker.
+    assert "mystery" not in gen.render_repo_table([repo])
 
-    # But a malformed/unknown visibility value is excluded from the public table.
+    # A malformed/unknown visibility value is likewise excluded from the public table.
     repo["visibility"] = "internal"
     assert "mystery" not in gen.render_repo_table([repo])
 
