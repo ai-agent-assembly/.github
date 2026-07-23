@@ -9,7 +9,7 @@ name: Org profile drift check
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - metadata/org-profile.yaml
       - metadata/generated/registry.json
@@ -17,7 +17,7 @@ on:
       - profile/README.md
       - .github/workflows/org-profile-drift.yml
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - metadata/org-profile.yaml
       - metadata/generated/registry.json
