@@ -361,4 +361,4 @@ install_channels:
     heading: "curl one-line installer (CLI)"
     lang: sh
     commands:
-      - "curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/master/scripts/install-cli.sh | sh"
+      - "curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/HEAD/scripts/install-cli.sh | sh"
