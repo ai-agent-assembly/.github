@@ -116,11 +116,11 @@ repos:
       - "[![GitHub tag](https://img.shields.io/github/v/tag/ai-agent-assembly/agent-assembly?label=GitHub&logo=github)](https://github.com/ai-agent-assembly/agent-assembly/tags)"
       - "[![crates.io](https://img.shields.io/badge/crates.io-reference-000000?logo=rust)](https://crates.io/search?q=agent-assembly)"
     activity_ci:
-      - "[![CI](https://github.com/ai-agent-assembly/agent-assembly/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ai-agent-assembly/agent-assembly/actions/workflows/ci.yml?query=branch%3Amaster)"
+      - "[![CI](https://github.com/ai-agent-assembly/agent-assembly/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ai-agent-assembly/agent-assembly/actions/workflows/ci.yml?query=branch%3Amain)"
     activity_meta:
       - "[![issues](https://img.shields.io/github/issues/ai-agent-assembly/agent-assembly?label=issues)](https://github.com/ai-agent-assembly/agent-assembly/issues)"
       - "[![PRs](https://img.shields.io/github/issues-pr/ai-agent-assembly/agent-assembly?label=PRs)](https://github.com/ai-agent-assembly/agent-assembly/pulls)"
-      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/agent-assembly?label=last)](https://github.com/ai-agent-assembly/agent-assembly/commits/master)"
+      - "[![last commit](https://img.shields.io/github/last-commit/ai-agent-assembly/agent-assembly?label=last)](https://github.com/ai-agent-assembly/agent-assembly/commits/main)"
 
   - slug: python-sdk
     repo: ai-agent-assembly/python-sdk
