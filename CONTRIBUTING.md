@@ -91,7 +91,7 @@ Each repo provides a `.github/PULL_REQUEST_TEMPLATE.md`. Fill it out completely;
 
 ### Base branch
 
-PRs always target `master`, even when your branch was created from another feature branch.
+PRs always target `main`, even when your branch was created from another feature branch.
 
 ### Scope
 
@@ -129,7 +129,7 @@ ci-success:
   name: CI Success
   if: always()
   needs: [lint, test]
-  uses: ai-agent-assembly/.github/.github/workflows/ci-success.yml@master
+  uses: ai-agent-assembly/.github/.github/workflows/ci-success.yml@main
   with:
     needs-json: ${{ toJSON(needs) }}
 ```
