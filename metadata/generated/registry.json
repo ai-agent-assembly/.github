@@ -21,8 +21,8 @@
     }
   },
   "governance": {
-    "default_branch": "master",
-    "baseline_doc_base": "https://github.com/ai-agent-assembly/.github/blob/master"
+    "default_branch": "main",
+    "baseline_doc_base": "https://github.com/ai-agent-assembly/.github/blob/main"
   },
   "jira": {
     "site": "lightning-dust-mite.atlassian.net",
@@ -48,35 +48,35 @@
     {
       "slug": "python-sdk",
       "repo": "ai-agent-assembly/python-sdk",
-      "default_branch": "master",
+      "default_branch": "main",
       "role": "Python SDK (PyO3 native + pure-Python client)",
       "visibility": "public"
     },
     {
       "slug": "node-sdk",
       "repo": "ai-agent-assembly/node-sdk",
-      "default_branch": "master",
+      "default_branch": "main",
       "role": "TypeScript SDK (napi-rs native + JS client)",
       "visibility": "public"
     },
     {
       "slug": "go-sdk",
       "repo": "ai-agent-assembly/go-sdk",
-      "default_branch": "master",
+      "default_branch": "main",
       "role": "Go SDK",
       "visibility": "public"
     },
     {
       "slug": ".github",
       "repo": "ai-agent-assembly/.github",
-      "default_branch": "master",
+      "default_branch": "main",
       "role": "Organization profile, templates, support, and community files",
       "visibility": "public"
     },
     {
       "slug": "homebrew-tap",
       "repo": "ai-agent-assembly/homebrew-tap",
-      "default_branch": "master",
+      "default_branch": "main",
       "role": "Homebrew tap for `aasm`",
       "visibility": "public"
     },
@@ -97,7 +97,7 @@
     {
       "slug": "examples",
       "repo": "ai-agent-assembly/examples",
-      "default_branch": "master",
+      "default_branch": "main",
       "role": "Runnable sample code for every SDK plus policy, approval, audit, trace, and runtime workflows",
       "visibility": "public"
     },
