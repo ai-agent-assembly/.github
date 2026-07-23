@@ -79,7 +79,7 @@ go get github.com/ai-agent-assembly/go-sdk
 #### curl one-line installer (CLI)
 
 ```sh
-curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/master/scripts/install-cli.sh | sh
+curl -sSf https://raw.githubusercontent.com/ai-agent-assembly/agent-assembly/HEAD/scripts/install-cli.sh | sh
 ```
 <!-- END GENERATED: install_channels -->
 
