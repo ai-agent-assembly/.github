@@ -67,6 +67,6 @@ jobs:
     name: CI Success
     if: always()
     needs: [lint, test]
-    uses: ai-agent-assembly/.github/.github/workflows/ci-success.yml@master
+    uses: ai-agent-assembly/.github/.github/workflows/ci-success.yml@main
     with:
       needs-json: ${{ toJSON(needs) }}
