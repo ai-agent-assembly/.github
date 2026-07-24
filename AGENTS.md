@@ -58,8 +58,9 @@ as from Claude Code:
   **`remote`** in some checkouts and **`origin`** in others; a local `origin` is
   sometimes a personal fork (notably `go-sdk`). Run `git remote -v` and push to the
   one pointing at `ai-agent-assembly`. **Never assume `origin`.**
-- **Default branch varies:** most repos use `master`; `docs` and
-  `internal-docs` use `main`. Confirm with `git ls-remote --symref <remote> HEAD`.
+- **Default branch:** `main` is the canonical org-wide default across all repos
+  (the archived, empty `agent-assembly-spec` is the only non-substantive edge).
+  Confirm with `git ls-remote --symref <remote> HEAD`.
 - The org id is **lowercase `ai-agent-assembly`** everywhere (Cargo git URLs, Go
   module paths, Codecov slugs, docs). An `AI-agent-assembly` remote URL is an old
   casing that redirects — harmless on push, but write lowercase in code/docs.

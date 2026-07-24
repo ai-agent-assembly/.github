@@ -107,7 +107,7 @@ eight principles in, so new and empty repos start compliant. Pick one from the
 
 The reference rationale and the **measured-result evidence** (before/after CI
 minutes and wall-clock) live in `agent-assembly`'s
-[`docs/src/benchmarks/ci-cd-pipeline-performance.md`](https://github.com/ai-agent-assembly/agent-assembly/blob/master/docs/src/benchmarks/ci-cd-pipeline-performance.md).
+[`docs/src/benchmarks/ci-cd-pipeline-performance.md`](https://github.com/ai-agent-assembly/agent-assembly/blob/main/docs/src/benchmarks/ci-cd-pipeline-performance.md).
 
 | # | Principle | How the starters apply it |
 |---|---|---|
