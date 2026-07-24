@@ -41,7 +41,7 @@
     {
       "slug": "agent-assembly",
       "repo": "ai-agent-assembly/agent-assembly",
-      "default_branch": "master",
+      "default_branch": "main",
       "role": "Core Rust monorepo: gateway, policy engine, CLI, API, dashboard",
       "visibility": "public"
     },
@@ -90,7 +90,7 @@
     {
       "slug": "agent-assembly-spec",
       "repo": "ai-agent-assembly/agent-assembly-spec",
-      "default_branch": "master",
+      "default_branch": "main",
       "role": "Shared specifications and protocol contracts",
       "visibility": "public"
     },
