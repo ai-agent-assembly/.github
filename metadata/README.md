@@ -3,7 +3,7 @@
 `org-profile.yaml` is the **single canonical registry** for the org's shared,
 non-version metadata — the facts that used to be hand-copied across repos and
 drifted silently on every rename or URL change. The design decision this
-implements is [ADR 0014](https://github.com/ai-agent-assembly/agent-assembly/blob/master/docs/src/adr/0014-canonical-metadata-registry-and-drift-gate.md)
+implements is [ADR 0014](https://github.com/ai-agent-assembly/agent-assembly/blob/main/docs/src/adr/0014-canonical-metadata-registry-and-drift-gate.md)
 (canonical metadata registry & drift gate); read it for the rationale and the
 public/private boundary rules. Version metadata is out of scope here — it is
 owned by ADR 0013.
