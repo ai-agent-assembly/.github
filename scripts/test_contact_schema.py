@@ -234,5 +234,47 @@ class LeakageTest(unittest.TestCase):
             gen.validate_contact_schema(data)
 
 
+class ContactBlockRenderTest(unittest.TestCase):
+    """Render tests for the AAASM-5520 governance-doc contact/SLA blocks."""
+
+    def test_security_block_publishes_com_primary(self) -> None:
+        block = gen.render_security_contact_block(_valid_schema())
+        self.assertIn("security@agent-assembly.com", block)
+        # Structured SLAs render as human text.
+        self.assertIn("Within 2 business days", block)
+        self.assertIn("Within 5 business days", block)
+
+    def test_security_block_labels_dev_as_legacy_and_not_live(self) -> None:
+        block = gen.render_security_contact_block(_valid_schema())
+        # The .dev alias is present but explicitly labeled legacy compatibility,
+        # and the block must NOT claim the .com mailbox is live-sending.
+        self.assertIn("security@agent-assembly.dev", block)
+        self.assertIn("legacy compatibility alias", block)
+        self.assertIn("Cloudflare Email Routing", block)
+        self.assertIn("not yet live-sending", block)
+
+    def test_support_block_uses_com_addresses(self) -> None:
+        block = gen.render_support_contacts_block(_valid_schema())
+        self.assertIn("support@agent-assembly.com", block)
+        self.assertIn("security@agent-assembly.com", block)
+        # Support is .com-only — no legacy .dev alias leaks into support prose.
+        self.assertNotIn("support@agent-assembly.dev", block)
+
+    def test_conduct_block_uses_com_primary(self) -> None:
+        block = gen.render_conduct_contact_block(_valid_schema())
+        self.assertIn("security@agent-assembly.com", block)
+        self.assertNotIn("security@agent-assembly.dev", block)
+
+    def test_sla_singular_pluralization(self) -> None:
+        data = _valid_schema()
+        data["security_policy"]["acknowledgement"] = {
+            "value": "1",
+            "unit": "business_days",
+        }
+        block = gen.render_security_contact_block(data)
+        self.assertIn("Within 1 business day", block)
+        self.assertNotIn("Within 1 business days", block)
+
+
 if __name__ == "__main__":
     unittest.main()

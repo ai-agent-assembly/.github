@@ -120,7 +120,7 @@ Start at the org profile, then follow these for every production repository:
 | --- | --- |
 | 📚 Documentation site (canonical) | <https://docs.agent-assembly.com/> |
 | 🤝 Contributing | [CONTRIBUTING.md](https://github.com/ai-agent-assembly/.github/blob/main/CONTRIBUTING.md) |
-| 🔒 Security policy | [SECURITY.md](https://github.com/ai-agent-assembly/.github/blob/main/SECURITY.md) — report privately to `security@agent-assembly.dev` |
+| 🔒 Security policy | [SECURITY.md](https://github.com/ai-agent-assembly/.github/blob/main/SECURITY.md) — report privately (see the reporting address there) |
 | 💬 Support and questions | [GitHub Discussions](https://github.com/ai-agent-assembly/agent-assembly/discussions) |
 
 > Each repository README links back to this profile and out to the canonical

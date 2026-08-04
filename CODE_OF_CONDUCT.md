@@ -4,7 +4,9 @@ The AI Agent Assembly project has adopted the [Contributor Covenant Code of Cond
 
 ## Reporting
 
-Concerns about contributor conduct may be reported to the project team at **security@agent-assembly.dev**. All reports will be reviewed promptly and fairly, and the privacy of the reporter will be respected.
+<!-- BEGIN GENERATED: conduct_contact -->
+Concerns about contributor conduct may be reported to the project team at **security@agent-assembly.com**. All reports will be reviewed promptly and fairly, and the privacy of the reporter will be respected.
+<!-- END GENERATED: conduct_contact -->
 
 ## Enforcement
 
