@@ -386,6 +386,348 @@ def render_install_channels(channels: list[dict]) -> str:
     return "\n".join(out)
 
 
+# ---------------------------------------------------------------------------
+# Contact / mail / security-policy schema validation (AAASM-5519)
+# ---------------------------------------------------------------------------
+# The widened schema publishes PUBLIC identity facts only. These validators run
+# before any projection so malformed or policy-violating input fails LOUDLY
+# (non-zero exit, descriptive message) instead of being silently published. Each
+# rule maps to an acceptance criterion: address/domain format, primary-vs-legacy
+# `.com`/`.dev` semantics, uniqueness, structured SLA presence, and a
+# forbidden-private-pattern guard so a recovery/admin identity, account id,
+# token, DKIM private material, or phone number can never reach a public
+# artifact.
+
+# Canonical org apex domain and its legacy alias. A `primary` contact must live
+# on the `.com` apex (or an approved subdomain of it); a `.dev` address is only
+# ever allowed under `legacy_aliases`.
+CANONICAL_APEX = "agent-assembly.com"
+LEGACY_APEX = "agent-assembly.dev"
+
+# Fixed vocabularies the schema is validated against, so a typo fails clearly
+# rather than silently misrendering downstream.
+SLA_UNITS = frozenset({"business_days", "calendar_days", "hours"})
+MAIL_STATUSES = frozenset({"planned", "in_progress", "active"})
+
+# Conservative RFC-5322-subset address / hostname shapes. We do not attempt full
+# RFC parsing — we reject anything that is obviously not a plain published
+# address/domain, which is enough to catch fat-finger errors and to anchor the
+# private-pattern guard below.
+_EMAIL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._%+-]*@([A-Za-z0-9-]+\.)+[A-Za-z]{2,}$")
+_DOMAIN_RE = re.compile(r"^([A-Za-z0-9-]+\.)+[A-Za-z]{2,}$")
+
+# Forbidden PRIVATE / SECRET patterns. The public registry must never carry
+# operational or secret data (ADR 0014). These match on both keys and values:
+#   - local-parts that name a recovery/admin/root/superadmin/on-call identity
+#   - phone numbers
+#   - obvious token/secret/credential/DKIM-private material
+#   - provider account-id shaped keys
+# The guard fails closed: a match anywhere in the contact/mail/security blocks
+# aborts generation.
+_FORBIDDEN_LOCALPARTS = (
+    "recovery",
+    "admin",
+    "administrator",
+    "superadmin",
+    "super-admin",
+    "root",
+    "postmaster-recovery",
+    "oncall",
+    "on-call",
+    "pagerduty",
+)
+_FORBIDDEN_KEY_SUBSTRINGS = (
+    "recovery",
+    "password",
+    "passwd",
+    "secret",
+    "token",
+    "api_key",
+    "apikey",
+    "credential",
+    "private_key",
+    "privatekey",
+    "dkim_private",
+    "dkim-private",
+    "account_id",
+    "account-id",
+    "phone",
+    "pager",
+    "oncall",
+    "on_call",
+    "on-call",
+)
+_PHONE_RE = re.compile(r"(?:\+?\d[\s().-]?){7,}")
+# High-entropy / secret-shaped literals: long base64/hex-ish runs, PEM headers,
+# and DKIM private-key markers. Assembled to catch pasted credentials.
+_SECRET_VALUE_RES = (
+    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
+    re.compile(r"\bp=[A-Za-z0-9+/]{40,}={0,2}"),  # DKIM p= public/private blob
+    re.compile(r"\b[A-Za-z0-9+/]{40,}={0,2}\b"),  # long base64-ish token
+    re.compile(r"\b[0-9a-fA-F]{32,}\b"),  # long hex token
+)
+
+
+class SchemaError(RuntimeError):
+    """Raised when the widened contact/mail/security schema is invalid."""
+
+
+def _as_int(value: Any, where: str) -> int:
+    """Coerce a parsed scalar to int, or raise SchemaError.
+
+    The minimal YAML parser returns every scalar as a string, so a schema-level
+    integer arrives as e.g. "2". Accept a non-negative integer literal; reject
+    anything else (floats, prose, empty) with a descriptive message.
+    """
+    if isinstance(value, bool):  # bool is an int subclass — reject explicitly.
+        raise SchemaError(f"{where}: expected an integer, got a boolean")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and value.strip().isdigit():
+        return int(value.strip())
+    raise SchemaError(f"{where}: expected an integer, got {value!r}")
+
+
+def _check_no_forbidden_key(key: str, path: str) -> None:
+    lowered = key.lower()
+    for sub in _FORBIDDEN_KEY_SUBSTRINGS:
+        if sub in lowered:
+            raise SchemaError(
+                f"{path}: forbidden key {key!r} — looks like private/secret "
+                f"data (matched {sub!r}); this belongs in the private runbook "
+                "or secret manager, never the public registry"
+            )
+
+
+def _check_no_forbidden_value(value: str, path: str) -> None:
+    lowered = value.lower()
+    for lp in _FORBIDDEN_LOCALPARTS:
+        # Match the forbidden identity only as the address local-part, so a
+        # legitimate domain label can't false-positive.
+        if lowered.startswith(lp + "@") or lowered.startswith(lp + "-@"):
+            raise SchemaError(
+                f"{path}: forbidden value {value!r} — names a "
+                f"recovery/admin/on-call identity ({lp!r}); not publishable"
+            )
+    if _PHONE_RE.search(value):
+        raise SchemaError(
+            f"{path}: forbidden value {value!r} — looks like a phone number; "
+            "phone contacts are private operational data"
+        )
+    for rx in _SECRET_VALUE_RES:
+        if rx.search(value):
+            raise SchemaError(
+                f"{path}: forbidden value at {path} — looks like a "
+                "token/secret/private-key blob; secrets never go in the registry"
+            )
+
+
+def _walk_forbidden(node: Any, path: str) -> None:
+    """Recursively enforce the forbidden-private-pattern guard over a subtree."""
+    if isinstance(node, dict):
+        for k, v in node.items():
+            _check_no_forbidden_key(str(k), f"{path}.{k}")
+            _walk_forbidden(v, f"{path}.{k}")
+    elif isinstance(node, list):
+        for idx, item in enumerate(node):
+            _walk_forbidden(item, f"{path}[{idx}]")
+    elif isinstance(node, str):
+        _check_no_forbidden_value(node, path)
+
+
+def _validate_email(addr: Any, path: str) -> str:
+    if not isinstance(addr, str) or not _EMAIL_RE.match(addr):
+        raise SchemaError(f"{path}: {addr!r} is not a valid email address")
+    return addr
+
+
+def _validate_domain(dom: Any, path: str) -> str:
+    if not isinstance(dom, str) or not _DOMAIN_RE.match(dom):
+        raise SchemaError(f"{path}: {dom!r} is not a valid domain name")
+    return dom
+
+
+def _domain_of(addr: str) -> str:
+    return addr.rsplit("@", 1)[-1].lower()
+
+
+def _is_canonical_com(domain: str) -> bool:
+    """True if ``domain`` is the `.com` apex or an approved subdomain of it."""
+    return domain == CANONICAL_APEX or domain.endswith("." + CANONICAL_APEX)
+
+
+def _validate_contacts(contacts: Any, seen: set[str]) -> None:
+    if not isinstance(contacts, dict) or not contacts:
+        raise SchemaError("contacts: must be a non-empty mapping of audiences")
+    for audience, block in contacts.items():
+        base = f"contacts.{audience}"
+        if not isinstance(block, dict):
+            raise SchemaError(f"{base}: must be a mapping")
+        primary = block.get("primary")
+        if primary is None:
+            raise SchemaError(f"{base}.primary: required")
+        _validate_email(primary, f"{base}.primary")
+        dom = _domain_of(primary)
+        # Primary-vs-legacy semantics: a canonical AA primary must be `.com`
+        # (never `.dev`); a `.dev` address is only allowed under legacy_aliases.
+        if dom == LEGACY_APEX or dom.endswith("." + LEGACY_APEX):
+            raise SchemaError(
+                f"{base}.primary: {primary!r} is a legacy '.dev' address — a "
+                "canonical primary must be '.com'; put '.dev' under legacy_aliases"
+            )
+        if not _is_canonical_com(dom):
+            raise SchemaError(
+                f"{base}.primary: {primary!r} is not on the canonical "
+                f"'{CANONICAL_APEX}' domain"
+            )
+        if primary.lower() in seen:
+            raise SchemaError(f"{base}.primary: {primary!r} is not unique")
+        seen.add(primary.lower())
+
+        aliases = block.get("legacy_aliases", [])
+        if aliases in (None, ""):
+            aliases = []
+        if not isinstance(aliases, list):
+            raise SchemaError(f"{base}.legacy_aliases: must be a list")
+        for idx, alias in enumerate(aliases):
+            apath = f"{base}.legacy_aliases[{idx}]"
+            _validate_email(alias, apath)
+            if alias.lower() in seen:
+                raise SchemaError(f"{apath}: {alias!r} is not unique")
+            seen.add(alias.lower())
+
+
+def _validate_sla(security_policy: Any) -> None:
+    if not isinstance(security_policy, dict) or not security_policy:
+        raise SchemaError("security_policy: must be a non-empty mapping")
+    for target in ("acknowledgement", "initial_assessment"):
+        block = security_policy.get(target)
+        base = f"security_policy.{target}"
+        if not isinstance(block, dict):
+            raise SchemaError(f"{base}: required structured value/unit mapping")
+        if "value" not in block:
+            raise SchemaError(f"{base}.value: required")
+        if "unit" not in block:
+            raise SchemaError(f"{base}.unit: required (structured, not prose)")
+        val = _as_int(block["value"], f"{base}.value")
+        if val <= 0:
+            raise SchemaError(f"{base}.value: must be a positive integer")
+        unit = block["unit"]
+        if unit not in SLA_UNITS:
+            raise SchemaError(
+                f"{base}.unit: {unit!r} not in {sorted(SLA_UNITS)}"
+            )
+
+
+def validate_contact_schema(data: dict) -> None:
+    """Validate the widened contact/mail/security schema; raise on any problem.
+
+    Runs the forbidden-private-pattern guard first (fail closed on leakage),
+    then the structural / semantic rules. Called before projection so a public
+    artifact is never produced from invalid input.
+    """
+    # schema_version must be present and a positive integer.
+    if "schema_version" not in data:
+        raise SchemaError("schema_version: required top-level key is missing")
+    sv = _as_int(data["schema_version"], "schema_version")
+    if sv < 1:
+        raise SchemaError("schema_version: must be >= 1")
+
+    # Forbidden-private-pattern guard over only the new blocks (the repo table /
+    # urls / jira sections are governed elsewhere and legitimately carry ids).
+    for section in ("contacts", "mail_domains", "transactional_from",
+                    "mail_platform", "security_policy"):
+        if section in data:
+            _walk_forbidden(data[section], section)
+
+    seen_addrs: set[str] = set()
+    _validate_contacts(data.get("contacts"), seen_addrs)
+
+    mail_domains = data.get("mail_domains")
+    if not isinstance(mail_domains, dict) or not mail_domains:
+        raise SchemaError("mail_domains: must be a non-empty mapping")
+    _validate_domain(mail_domains.get("human"), "mail_domains.human")
+    _validate_domain(mail_domains.get("legacy_human"), "mail_domains.legacy_human")
+    _validate_domain(mail_domains.get("transactional"), "mail_domains.transactional")
+    if not _is_canonical_com(str(mail_domains["human"]).lower()):
+        raise SchemaError("mail_domains.human: must be on the canonical '.com' domain")
+
+    txn = data.get("transactional_from")
+    if not isinstance(txn, dict) or not txn:
+        raise SchemaError("transactional_from: must be a non-empty mapping")
+    txn_domain = str(mail_domains["transactional"]).lower()
+    for key, addr in txn.items():
+        path = f"transactional_from.{key}"
+        _validate_email(addr, path)
+        if _domain_of(addr) != txn_domain:
+            raise SchemaError(
+                f"{path}: {addr!r} must be on the transactional domain "
+                f"'{txn_domain}'"
+            )
+        if addr.lower() in seen_addrs:
+            raise SchemaError(f"{path}: {addr!r} is not unique")
+        seen_addrs.add(addr.lower())
+
+    mail_platform = data.get("mail_platform")
+    if not isinstance(mail_platform, dict) or not mail_platform:
+        raise SchemaError("mail_platform: must be a non-empty mapping")
+    for status_key in ("human_mail_status", "transactional_status"):
+        status = mail_platform.get(status_key)
+        if status not in MAIL_STATUSES:
+            raise SchemaError(
+                f"mail_platform.{status_key}: {status!r} not in "
+                f"{sorted(MAIL_STATUSES)}"
+            )
+
+    _validate_sla(data.get("security_policy"))
+
+
+# ---------------------------------------------------------------------------
+# Public projection of the contact / mail / security schema
+# ---------------------------------------------------------------------------
+
+
+def _project_contacts_block(data: dict) -> dict:
+    """Build the deterministic public projection of the widened schema.
+
+    Only public identity facts are emitted, in insertion order, with SLA/version
+    integers coerced from their parsed string form so the JSON carries real
+    numbers. This runs AFTER validate_contact_schema, so every field here is
+    already known valid and leakage-free.
+
+    Returns an empty dict when the widened schema is absent (no
+    ``schema_version`` key), so the projection is purely additive — a registry
+    without the AAASM-5519 blocks projects exactly as it did before.
+    """
+    if "schema_version" not in data:
+        return {}
+
+    contacts_out: dict[str, dict] = {}
+    for audience, block in (data.get("contacts") or {}).items():
+        entry: dict[str, Any] = {"primary": block["primary"]}
+        aliases = block.get("legacy_aliases") or []
+        if aliases:
+            entry["legacy_aliases"] = list(aliases)
+        contacts_out[audience] = entry
+
+    security_policy = data.get("security_policy") or {}
+    sla_out: dict[str, dict] = {}
+    for target, blk in security_policy.items():
+        sla_out[target] = {
+            "value": _as_int(blk["value"], f"security_policy.{target}.value"),
+            "unit": blk["unit"],
+        }
+
+    return {
+        "schema_version": _as_int(data["schema_version"], "schema_version"),
+        "contacts": contacts_out,
+        "mail_domains": dict(data.get("mail_domains") or {}),
+        "transactional_from": dict(data.get("transactional_from") or {}),
+        "mail_platform": dict(data.get("mail_platform") or {}),
+        "security_policy": sla_out,
+    }
+
+
 def render_registry_json(data: dict) -> str:
     """Render metadata/generated/registry.json — the shared-metadata projection.
 
@@ -412,19 +754,34 @@ def render_registry_json(data: dict) -> str:
         for r in (data.get("repos") or [])
         if r.get("visibility") == "public"
     ]
-    projection = {
+    contact_schema = _project_contacts_block(data)
+    projection: dict[str, Any] = {
         "_readme": (
             "DO NOT EDIT. Generated by scripts/generate_org_profile.py from "
             "metadata/org-profile.yaml (canonical metadata registry, ADR 0014). "
             "Edit the registry and regenerate; see metadata/README.md."
         ),
-        "org": data.get("org"),
-        "product": data.get("product", {}),
+    }
+    if contact_schema:
+        projection["schema_version"] = contact_schema["schema_version"]
+    projection["org"] = data.get("org")
+    projection["product"] = data.get("product", {})
+    # Public contact/mail/security-policy facts (AAASM-5519). Only the public
+    # projection is emitted — no private/internal fields, no secrets. These are
+    # inserted after `product` and before `urls` to mirror the SoT order, and
+    # only when the widened schema is present (purely additive).
+    if contact_schema:
+        projection["contacts"] = contact_schema["contacts"]
+        projection["mail_domains"] = contact_schema["mail_domains"]
+        projection["transactional_from"] = contact_schema["transactional_from"]
+        projection["mail_platform"] = contact_schema["mail_platform"]
+        projection["security_policy"] = contact_schema["security_policy"]
+    projection.update({
         "urls": data.get("urls", {}),
         "governance": data.get("governance", {}),
         "jira": data.get("jira", {}),
         "repos": public_repos,
-    }
+    })
     return json.dumps(projection, indent=2, ensure_ascii=False) + "\n"
 
 
@@ -469,6 +826,11 @@ def build_artifacts() -> dict[Path, str]:
     """
     data = parse_yaml(SOT_PATH.read_text(encoding="utf-8"))
 
+    # Validate the widened contact/mail/security schema BEFORE producing any
+    # artifact, so malformed or leakage-prone input fails the run (and thus the
+    # drift gate) rather than being silently published.
+    validate_contact_schema(data)
+
     readme = README_PATH.read_text(encoding="utf-8")
     readme = replace_bounded(readme, "repo_table", render_repo_table(data.get("repos", [])))
     readme = replace_bounded(
@@ -498,7 +860,14 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv)
 
-    artifacts = build_artifacts()
+    # A malformed registry (bad YAML subset, or an invalid/leakage-prone
+    # contact schema) must fail the gate loudly with a readable message rather
+    # than a bare traceback — CI reads stderr.
+    try:
+        artifacts = build_artifacts()
+    except (YamlError, SchemaError) as exc:
+        print(f"ERROR: invalid metadata/org-profile.yaml — {exc}", file=sys.stderr)
+        return 2
     drifted = [p for p, content in artifacts.items() if _read_or_empty(p) != content]
 
     if not drifted:

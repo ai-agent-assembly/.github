@@ -20,6 +20,12 @@
 
 org: ai-agent-assembly
 
+# Schema version for the contact / mail / security-policy blocks introduced by
+# AAASM-5519. Consumers read this to fail clearly (not silently misrender) if the
+# shape changes incompatibly. Bump on any breaking change to those blocks; the
+# generator validates the value is present and an integer >= 1.
+schema_version: 1
+
 # ---------------------------------------------------------------------------
 # Canonical org-shared metadata (ADR 0014).
 # ---------------------------------------------------------------------------
@@ -36,7 +42,96 @@ org: ai-agent-assembly
 product:
   name: "AI Agent Assembly"
   org_display_name: "AI Agent Assembly"
+  # Legacy `.dev` published security address. Retained byte-for-byte so existing
+  # consumers of `product.security_email` stay stable; the canonical `.com`
+  # address now lives under `contacts.security.primary` (see below). Consumers
+  # should migrate to `contacts.security.primary` — that is the address to
+  # publish going forward; this field is the historical alias.
   security_email: "security@agent-assembly.dev"
+
+# ---------------------------------------------------------------------------
+# Contact identities, mail-domain boundaries, and security-policy targets.
+# ---------------------------------------------------------------------------
+# AAASM-5519. One structured owner for the public contact/mail facts that were
+# previously hand-copied across SECURITY.md, SUPPORT.md, websites, and package
+# manifests. These are PUBLIC identity facts only. NOTHING private/secret and
+# NOTHING about live tenant state belongs here (see the ownership table in
+# metadata/README.md): Workspace Admin owns account objects; Terraform owns DNS;
+# this registry owns published identity facts; the private runbook owns
+# operational facts; the secret manager owns secrets.
+#
+# Semantic distinctions the schema keeps crisp:
+#   - `primary`        canonical public contact identity (always `.com` for AA)
+#   - `legacy_aliases` legacy compatibility identity (the historical `.dev`)
+#   - mail_domains     the human mailbox domain vs. the transactional domain
+#   - transactional_from  sender identity for machine-sent mail
+#   - mail_platform    intended provider + activation state (NOTHING live yet)
+#   - security_policy  structured security-response targets (value/unit)
+#
+# The canonical `.com` primary and the legacy `.dev` alias are deliberately
+# distinct keys so a consumer asking for `primary` can never accidentally
+# publish a legacy address. The generator validates: address/domain format,
+# uniqueness, that every AA `primary` is `.com` (never `.dev`), that structured
+# SLA value/unit pairs are present, and a forbidden-private-pattern guard that
+# rejects anything shaped like a recovery/admin address, account id, token,
+# DKIM private material, or phone number.
+
+# Canonical public contact addresses, one block per audience. `primary` is the
+# `.com` address to publish; `legacy_aliases` (where present) are the historical
+# `.dev` addresses kept only for backwards compatibility.
+contacts:
+  security:
+    primary: "security@agent-assembly.com"
+    legacy_aliases:
+      - "security@agent-assembly.dev"
+  support:
+    primary: "support@agent-assembly.com"
+  maintainers:
+    primary: "team@agent-assembly.com"
+    legacy_aliases:
+      - "team@agent-assembly.dev"
+  privacy:
+    primary: "privacy@agent-assembly.com"
+  billing:
+    primary: "billing@agent-assembly.com"
+
+# Mail-domain boundaries. `human` is the mailbox domain people read/reply on;
+# `legacy_human` is the historical human domain; `transactional` is the
+# subdomain reserved for machine-sent mail so bulk/automated sending is isolated
+# from the human mailbox reputation.
+mail_domains:
+  human: "agent-assembly.com"
+  legacy_human: "agent-assembly.dev"
+  transactional: "mail.agent-assembly.com"
+
+# Transactional sender identities (the From on machine-sent mail). These live on
+# the `transactional` domain above, distinct from the human contact addresses.
+transactional_from:
+  default: "no-reply@mail.agent-assembly.com"
+  verification: "verify@mail.agent-assembly.com"
+  notifications: "notifications@mail.agent-assembly.com"
+
+# Activation state of the mail / provider plane. This registry publishes the
+# INTENDED shape only — it is NOT the authority for live tenant state, and
+# NOTHING here is live yet. Do not read these as "verified" or "sending".
+# Statuses are drawn from a fixed vocabulary the generator validates:
+# {planned, in_progress, active}. Providers may be "undecided".
+mail_platform:
+  intended_provider: "Google Workspace"
+  human_mail_status: "planned"
+  transactional_provider: "undecided"
+  transactional_status: "planned"
+
+# Security-response service targets, structured as value/unit pairs (not English
+# prose) so renderers/localizers can format them. Units are validated against a
+# fixed vocabulary: {business_days, calendar_days, hours}.
+security_policy:
+  acknowledgement:
+    value: 2
+    unit: "business_days"
+  initial_assessment:
+    value: 5
+    unit: "business_days"
 
 # Canonical public hosts. Values are owned by ADR 0007/0008 and only stored here.
 urls:
