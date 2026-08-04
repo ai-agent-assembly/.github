@@ -44,6 +44,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SOT_PATH = REPO_ROOT / "metadata" / "org-profile.yaml"
 README_PATH = REPO_ROOT / "profile" / "README.md"
 
+# In-repo governance-doc consumers of the widened contact/security schema
+# (AAASM-5520). Each carries bounded <!-- BEGIN/END GENERATED: <id> --> regions
+# whose content is rendered from the registry; the surrounding prose stays
+# hand-authored. These are drift-gated by the same --check run as the README.
+SECURITY_PATH = REPO_ROOT / "SECURITY.md"
+SUPPORT_PATH = REPO_ROOT / "SUPPORT.md"
+
 # Machine-readable projection of the registry (ADR 0014) for cross-repo
 # consumers and the future hardcoded-value lint. Visibility-filtered: only
 # public repos and only the shared facts (no badge/version markdown).
@@ -384,6 +391,103 @@ def render_install_channels(channels: list[dict]) -> str:
     while out and out[-1] == "":
         out.pop()
     return "\n".join(out)
+
+
+# ---------------------------------------------------------------------------
+# Governance-doc contact/SLA blocks (AAASM-5520)
+# ---------------------------------------------------------------------------
+# These render the SHARED contact + security-response facts into the bounded
+# regions of SECURITY.md / SUPPORT.md so the addresses and SLAs have one owner
+# (the registry) instead of being hand-copied. Repo-specific threat-model /
+# reporting prose stays OUTSIDE the sentinels and is not touched.
+#
+# Deliberate wording constraints (AAASM-5514 governance):
+#   - The canonical published contact is the `.com` `primary`.
+#   - The historical `.dev` alias is labeled legacy-compatibility only.
+#   - NOTHING here claims the `.com` mailbox is live/sending: no Workspace tenant
+#     exists yet (mail_platform.*_status == "planned"). The legacy `.dev`
+#     addresses continue to receive via Cloudflare Email Routing during the
+#     transition, so the note points reporters at an address that actually
+#     delivers today without over-claiming the `.com` cutover.
+
+# Human-readable unit phrasing for the structured SLA value/unit pairs. Kept as
+# a small fixed map (not English baked into the SoT) so the registry stays
+# structured and the rendering is the consumer's concern.
+_SLA_UNIT_LABELS = {
+    "business_days": ("business day", "business days"),
+    "calendar_days": ("calendar day", "calendar days"),
+    "hours": ("hour", "hours"),
+}
+
+
+def _format_sla(block: dict, where: str) -> str:
+    """Render a structured ``{value, unit}`` SLA as human text (e.g. ``2 business days``)."""
+    value = _as_int(block["value"], f"{where}.value")
+    unit = block["unit"]
+    singular, plural = _SLA_UNIT_LABELS[unit]
+    return f"{value} {singular if value == 1 else plural}"
+
+
+def render_security_contact_block(data: dict) -> str:
+    """Render the shared SECURITY.md contact + response-target region.
+
+    Emits the canonical `.com` reporting address, a labeled legacy-alias note
+    (with the Cloudflare-routing transitional fact so reporters use an address
+    that delivers), and the structured acknowledgement / initial-assessment
+    SLAs. Repo-specific reporting instructions and threat model stay outside
+    the bounded block.
+    """
+    contacts = data.get("contacts") or {}
+    sec = contacts.get("security") or {}
+    primary = sec["primary"]
+    aliases = sec.get("legacy_aliases") or []
+    sp = data.get("security_policy") or {}
+    ack = _format_sla(sp["acknowledgement"], "security_policy.acknowledgement")
+    assess = _format_sla(
+        sp["initial_assessment"], "security_policy.initial_assessment"
+    )
+
+    lines = [
+        f"Report security vulnerabilities privately to **{primary}**. "
+        "Do not open a public issue or discussion for a security report.",
+        "",
+        "| Response stage | Target |",
+        "| --- | --- |",
+        f"| Acknowledgement | Within {ack} |",
+        f"| Initial assessment | Within {assess} |",
+    ]
+    if aliases:
+        alias_md = ", ".join(f"`{a}`" for a in aliases)
+        lines += [
+            "",
+            f"> **Legacy address.** {alias_md} "
+            f"{'remain' if len(aliases) > 1 else 'remains'} a legacy "
+            "compatibility alias. During the in-progress migration to the "
+            f"canonical `{primary}` identity, the legacy address continues to "
+            "receive mail via Cloudflare Email Routing, so a report sent there "
+            "still reaches us. The canonical mailbox is not yet live-sending.",
+        ]
+    return "\n".join(lines)
+
+
+def render_support_contacts_block(data: dict) -> str:
+    """Render the shared SUPPORT.md contact region (support + security addresses).
+
+    Support is a `.com`-only audience (no legacy alias); security carries the
+    same legacy-alias transitional note as SECURITY.md so the two documents
+    never diverge on the address to use.
+    """
+    contacts = data.get("contacts") or {}
+    support_primary = (contacts.get("support") or {})["primary"]
+    sec = contacts.get("security") or {}
+    sec_primary = sec["primary"]
+    lines = [
+        f"- **Support:** email **{support_primary}** for general product and "
+        "integration questions.",
+        f"- **Security:** report vulnerabilities privately to **{sec_primary}** "
+        "(see [`SECURITY.md`](SECURITY.md)); do not open a public issue.",
+    ]
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -790,11 +894,12 @@ def render_registry_json(data: dict) -> str:
 # ---------------------------------------------------------------------------
 
 
-def replace_bounded(text: str, block_id: str, new_body: str) -> str:
+def replace_bounded(text: str, block_id: str, new_body: str, where: str = "profile/README.md") -> str:
     """Replace the content between BEGIN/END sentinels for block_id.
 
     The sentinel lines themselves are preserved. new_body is inserted between
     them, on its own lines, with a single blank line of padding on each side.
+    ``where`` names the file for the not-found error message.
     """
     begin_marker = f"<!-- BEGIN GENERATED: {block_id} -->"
     end_marker = f"<!-- END GENERATED: {block_id} -->"
@@ -803,7 +908,7 @@ def replace_bounded(text: str, block_id: str, new_body: str) -> str:
     e = text.find(end_marker)
     if b < 0 or e < 0 or e < b:
         raise RuntimeError(
-            f"bounded section {block_id!r} not found in profile/README.md — "
+            f"bounded section {block_id!r} not found in {where} — "
             f"expected {begin_marker!r} ... {end_marker!r}"
         )
 
@@ -837,8 +942,22 @@ def build_artifacts() -> dict[Path, str]:
         readme, "install_channels", render_install_channels(data.get("install_channels", []))
     )
 
+    # In-repo governance docs consume the shared contact/SLA facts through their
+    # own bounded regions (AAASM-5520). Rendered from the same validated data so
+    # the addresses and response targets can never drift from the registry.
+    security = SECURITY_PATH.read_text(encoding="utf-8")
+    security = replace_bounded(
+        security, "security_contact", render_security_contact_block(data), where="SECURITY.md"
+    )
+    support = SUPPORT_PATH.read_text(encoding="utf-8")
+    support = replace_bounded(
+        support, "support_contacts", render_support_contacts_block(data), where="SUPPORT.md"
+    )
+
     return {
         README_PATH: readme,
+        SECURITY_PATH: security,
+        SUPPORT_PATH: support,
         REGISTRY_JSON_PATH: render_registry_json(data),
     }
 
@@ -892,6 +1011,14 @@ def main(argv: list[str]) -> int:
         README_PATH.parent.mkdir(parents=True, exist_ok=True)
         README_PATH.write_text(artifacts[README_PATH], encoding="utf-8")
         print(f"Wrote {README_PATH.relative_to(REPO_ROOT)}.")
+    if SECURITY_PATH in drifted:
+        SECURITY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        SECURITY_PATH.write_text(artifacts[SECURITY_PATH], encoding="utf-8")
+        print(f"Wrote {SECURITY_PATH.relative_to(REPO_ROOT)}.")
+    if SUPPORT_PATH in drifted:
+        SUPPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        SUPPORT_PATH.write_text(artifacts[SUPPORT_PATH], encoding="utf-8")
+        print(f"Wrote {SUPPORT_PATH.relative_to(REPO_ROOT)}.")
     if REGISTRY_JSON_PATH in drifted:
         REGISTRY_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
         REGISTRY_JSON_PATH.write_text(artifacts[REGISTRY_JSON_PATH], encoding="utf-8")
