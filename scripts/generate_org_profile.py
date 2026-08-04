@@ -50,6 +50,7 @@ README_PATH = REPO_ROOT / "profile" / "README.md"
 # hand-authored. These are drift-gated by the same --check run as the README.
 SECURITY_PATH = REPO_ROOT / "SECURITY.md"
 SUPPORT_PATH = REPO_ROOT / "SUPPORT.md"
+CODE_OF_CONDUCT_PATH = REPO_ROOT / "CODE_OF_CONDUCT.md"
 
 # Machine-readable projection of the registry (ADR 0014) for cross-repo
 # consumers and the future hardcoded-value lint. Visibility-filtered: only
@@ -468,6 +469,22 @@ def render_security_contact_block(data: dict) -> str:
             "still reaches us. The canonical mailbox is not yet live-sending.",
         ]
     return "\n".join(lines)
+
+
+def render_conduct_contact_block(data: dict) -> str:
+    """Render the CODE_OF_CONDUCT.md reporting line.
+
+    The CoC routes conduct reports to the same security mailbox; render the
+    canonical `.com` primary so the `.dev` literal is migrated and drift-gated
+    like every other consumer. Preserves the existing routing behaviour.
+    """
+    sec = (data.get("contacts") or {}).get("security") or {}
+    primary = sec["primary"]
+    return (
+        f"Concerns about contributor conduct may be reported to the project "
+        f"team at **{primary}**. All reports will be reviewed promptly and "
+        "fairly, and the privacy of the reporter will be respected."
+    )
 
 
 def render_support_contacts_block(data: dict) -> str:
@@ -953,11 +970,16 @@ def build_artifacts() -> dict[Path, str]:
     support = replace_bounded(
         support, "support_contacts", render_support_contacts_block(data), where="SUPPORT.md"
     )
+    coc = CODE_OF_CONDUCT_PATH.read_text(encoding="utf-8")
+    coc = replace_bounded(
+        coc, "conduct_contact", render_conduct_contact_block(data), where="CODE_OF_CONDUCT.md"
+    )
 
     return {
         README_PATH: readme,
         SECURITY_PATH: security,
         SUPPORT_PATH: support,
+        CODE_OF_CONDUCT_PATH: coc,
         REGISTRY_JSON_PATH: render_registry_json(data),
     }
 
@@ -1019,6 +1041,10 @@ def main(argv: list[str]) -> int:
         SUPPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
         SUPPORT_PATH.write_text(artifacts[SUPPORT_PATH], encoding="utf-8")
         print(f"Wrote {SUPPORT_PATH.relative_to(REPO_ROOT)}.")
+    if CODE_OF_CONDUCT_PATH in drifted:
+        CODE_OF_CONDUCT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        CODE_OF_CONDUCT_PATH.write_text(artifacts[CODE_OF_CONDUCT_PATH], encoding="utf-8")
+        print(f"Wrote {CODE_OF_CONDUCT_PATH.relative_to(REPO_ROOT)}.")
     if REGISTRY_JSON_PATH in drifted:
         REGISTRY_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
         REGISTRY_JSON_PATH.write_text(artifacts[REGISTRY_JSON_PATH], encoding="utf-8")

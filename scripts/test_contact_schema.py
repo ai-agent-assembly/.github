@@ -260,6 +260,11 @@ class ContactBlockRenderTest(unittest.TestCase):
         # Support is .com-only — no legacy .dev alias leaks into support prose.
         self.assertNotIn("support@agent-assembly.dev", block)
 
+    def test_conduct_block_uses_com_primary(self) -> None:
+        block = gen.render_conduct_contact_block(_valid_schema())
+        self.assertIn("security@agent-assembly.com", block)
+        self.assertNotIn("security@agent-assembly.dev", block)
+
     def test_sla_singular_pluralization(self) -> None:
         data = _valid_schema()
         data["security_policy"]["acknowledgement"] = {

@@ -19,6 +19,7 @@ on:
       - profile/README.md
       - SECURITY.md
       - SUPPORT.md
+      - CODE_OF_CONDUCT.md
       - .github/workflows/org-profile-drift.yml
   push:
     branches: [main]
@@ -29,6 +30,7 @@ on:
       - profile/README.md
       - SECURITY.md
       - SUPPORT.md
+      - CODE_OF_CONDUCT.md
       - .github/workflows/org-profile-drift.yml
   schedule:
     - cron: "23 6 * * 1"  # Mondays — catch stealth hand-edits
