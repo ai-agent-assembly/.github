@@ -104,15 +104,26 @@ leakage tests live in `scripts/test_contact_schema.py`.
 
 ## Generated artifacts
 
-`scripts/generate_org_profile.py` derives two artifacts from the registry:
+`scripts/generate_org_profile.py` derives these artifacts from the registry:
 
 - **`../profile/README.md`** — the org front door. The generator rewrites the
   bounded `<!-- BEGIN GENERATED: repo_table -->` and `install_channels` regions;
   everything outside those markers is hand-authored prose.
+- **`../SECURITY.md`** — the `<!-- BEGIN GENERATED: security_contact -->` region
+  carries the canonical `.com` reporting address, the structured
+  acknowledgement / initial-assessment SLAs, and the labeled legacy-alias note
+  (AAASM-5520). Supported-versions and disclosure prose stay hand-authored.
+- **`../SUPPORT.md`** — the `<!-- BEGIN GENERATED: support_contacts -->` region
+  carries the support + security `.com` contact addresses (AAASM-5520).
 - **`generated/registry.json`** — a machine-readable, **visibility-filtered**
   projection of the shared facts (public repos only, identity fields only) that
   cross-repo consumers read instead of hand-copying a value. It is **generated —
   do not edit by hand**; change the registry and regenerate.
+
+The generated contact blocks state **intent only**: no `.com` mailbox is live
+yet (`mail_platform.*_status == planned`). The legacy `.dev` addresses continue
+to receive via Cloudflare Email Routing during the transition, and the rendered
+note says so — it never claims the `.com` identity is live-sending.
 
 ## Changing a shared value
 

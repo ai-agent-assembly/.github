@@ -1,10 +1,12 @@
 # metadata/org-profile.yaml is the canonical org-shared metadata registry
-# (ADR 0014). scripts/generate_org_profile.py derives two artifacts from it: the
-# org front-door profile/README.md (badge tables + install snippets) and
+# (ADR 0014). scripts/generate_org_profile.py derives four artifacts from it: the
+# org front-door profile/README.md (badge tables + install snippets),
 # metadata/generated/registry.json (the machine-readable projection cross-repo
-# consumers read). This gate fails if either derived artifact has drifted from
-# what the generator would produce — on any PR/push that touches the registry,
-# the generator, or a generated artifact, and weekly to catch stealth hand-edits.
+# consumers read), and the bounded contact/SLA regions of SECURITY.md and
+# SUPPORT.md (AAASM-5520). This gate fails if any derived artifact has drifted
+# from what the generator would produce — on any PR/push that touches the
+# registry, the generator, or a generated artifact, and weekly to catch stealth
+# hand-edits.
 name: Org profile drift check
 
 on:
@@ -15,6 +17,8 @@ on:
       - metadata/generated/registry.json
       - scripts/generate_org_profile.py
       - profile/README.md
+      - SECURITY.md
+      - SUPPORT.md
       - .github/workflows/org-profile-drift.yml
   push:
     branches: [main]
@@ -23,6 +27,8 @@ on:
       - metadata/generated/registry.json
       - scripts/generate_org_profile.py
       - profile/README.md
+      - SECURITY.md
+      - SUPPORT.md
       - .github/workflows/org-profile-drift.yml
   schedule:
     - cron: "23 6 * * 1"  # Mondays — catch stealth hand-edits
