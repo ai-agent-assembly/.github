@@ -759,6 +759,54 @@ def _validate_sla(security_policy: Any) -> None:
         )
 
 
+def _validate_schema_version(data: dict) -> None:
+    # schema_version must be present and a positive integer.
+    if "schema_version" not in data:
+        raise SchemaError("schema_version: required top-level key is missing")
+    if _as_int(data["schema_version"], "schema_version") < 1:
+        raise SchemaError("schema_version: must be >= 1")
+
+
+def _validate_mail_domains(mail_domains: Any) -> None:
+    if not isinstance(mail_domains, dict) or not mail_domains:
+        raise SchemaError("mail_domains: must be a non-empty mapping")
+    _validate_domain(mail_domains.get("human"), "mail_domains.human")
+    _validate_domain(mail_domains.get("legacy_human"), "mail_domains.legacy_human")
+    _validate_domain(mail_domains.get("transactional"), "mail_domains.transactional")
+    if not _is_canonical_com(str(mail_domains["human"]).lower()):
+        raise SchemaError("mail_domains.human: must be on the canonical '.com' domain")
+
+
+def _validate_transactional_from(
+    txn: Any, txn_domain: str, seen: set[str]
+) -> None:
+    if not isinstance(txn, dict) or not txn:
+        raise SchemaError("transactional_from: must be a non-empty mapping")
+    for key, addr in txn.items():
+        path = f"transactional_from.{key}"
+        _validate_email(addr, path)
+        if _domain_of(addr) != txn_domain:
+            raise SchemaError(
+                f"{path}: {addr!r} must be on the transactional domain "
+                f"'{txn_domain}'"
+            )
+        if addr.lower() in seen:
+            raise SchemaError(f"{path}: {addr!r} is not unique")
+        seen.add(addr.lower())
+
+
+def _validate_mail_platform(mail_platform: Any) -> None:
+    if not isinstance(mail_platform, dict) or not mail_platform:
+        raise SchemaError("mail_platform: must be a non-empty mapping")
+    for status_key in ("human_mail_status", "transactional_status"):
+        status = mail_platform.get(status_key)
+        if status not in MAIL_STATUSES:
+            raise SchemaError(
+                f"mail_platform.{status_key}: {status!r} not in "
+                f"{sorted(MAIL_STATUSES)}"
+            )
+
+
 def validate_contact_schema(data: dict) -> None:
     """Validate the widened contact/mail/security schema; raise on any problem.
 
@@ -766,12 +814,7 @@ def validate_contact_schema(data: dict) -> None:
     then the structural / semantic rules. Called before projection so a public
     artifact is never produced from invalid input.
     """
-    # schema_version must be present and a positive integer.
-    if "schema_version" not in data:
-        raise SchemaError("schema_version: required top-level key is missing")
-    sv = _as_int(data["schema_version"], "schema_version")
-    if sv < 1:
-        raise SchemaError("schema_version: must be >= 1")
+    _validate_schema_version(data)
 
     # Forbidden-private-pattern guard over only the new blocks (the repo table /
     # urls / jira sections are governed elsewhere and legitimately carry ids).
@@ -784,41 +827,13 @@ def validate_contact_schema(data: dict) -> None:
     _validate_contacts(data.get("contacts"), seen_addrs)
 
     mail_domains = data.get("mail_domains")
-    if not isinstance(mail_domains, dict) or not mail_domains:
-        raise SchemaError("mail_domains: must be a non-empty mapping")
-    _validate_domain(mail_domains.get("human"), "mail_domains.human")
-    _validate_domain(mail_domains.get("legacy_human"), "mail_domains.legacy_human")
-    _validate_domain(mail_domains.get("transactional"), "mail_domains.transactional")
-    if not _is_canonical_com(str(mail_domains["human"]).lower()):
-        raise SchemaError("mail_domains.human: must be on the canonical '.com' domain")
-
-    txn = data.get("transactional_from")
-    if not isinstance(txn, dict) or not txn:
-        raise SchemaError("transactional_from: must be a non-empty mapping")
-    txn_domain = str(mail_domains["transactional"]).lower()
-    for key, addr in txn.items():
-        path = f"transactional_from.{key}"
-        _validate_email(addr, path)
-        if _domain_of(addr) != txn_domain:
-            raise SchemaError(
-                f"{path}: {addr!r} must be on the transactional domain "
-                f"'{txn_domain}'"
-            )
-        if addr.lower() in seen_addrs:
-            raise SchemaError(f"{path}: {addr!r} is not unique")
-        seen_addrs.add(addr.lower())
-
-    mail_platform = data.get("mail_platform")
-    if not isinstance(mail_platform, dict) or not mail_platform:
-        raise SchemaError("mail_platform: must be a non-empty mapping")
-    for status_key in ("human_mail_status", "transactional_status"):
-        status = mail_platform.get(status_key)
-        if status not in MAIL_STATUSES:
-            raise SchemaError(
-                f"mail_platform.{status_key}: {status!r} not in "
-                f"{sorted(MAIL_STATUSES)}"
-            )
-
+    _validate_mail_domains(mail_domains)
+    _validate_transactional_from(
+        data.get("transactional_from"),
+        str(mail_domains["transactional"]).lower(),
+        seen_addrs,
+    )
+    _validate_mail_platform(data.get("mail_platform"))
     _validate_sla(data.get("security_policy"))
 
 
