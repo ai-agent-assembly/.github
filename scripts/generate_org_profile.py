@@ -320,47 +320,56 @@ def render_repo_table(repos: list[dict]) -> str:
     for r in repos:
         if r.get("visibility") != "public":
             continue
-        slug = str(r["slug"])
-        repo_full = str(r["repo"])
-        role = str(r["role"])
-        badge = r.get("badge", {}) or {}
-        label_color = str(badge.get("label_color", "000000"))
-        logo = str(badge.get("logo", "github"))
-        logo_color = badge.get("logo_color")
-        tag_prefix = str(badge.get("tag_prefix", ""))
-
-        # shields.io renders "--" as a single dash in badge label paths, so
-        # both the slug and the tag_prefix must be escaped the same way when
-        # they contain literal dashes. The SoT stores the plain values
-        # ("agent-assembly", "org-profile") — escaping is a rendering concern.
-        shielded_slug = slug.replace("-", "--")
-        shielded_tag = tag_prefix.replace("-", "--")
-
-        logo_frag = f"logo={logo}"
-        if logo_color:
-            logo_frag += f"&logoColor={logo_color}"
-        name_badge = (
-            f"[![{slug}](https://img.shields.io/badge/"
-            f"{shielded_slug}-{shielded_tag}-{label_color}?{logo_frag})]"
-            f"(https://github.com/{repo_full})"
-        )
-
-        version_cell = " ".join(str(v) for v in (r.get("version") or []))
-        ci_list = r.get("activity_ci") or []
-        # Empty cells render as "| |" (single space between pipes) — matches
-        # the existing README convention and avoids "|  |" (double space)
-        # that a naive " ".join() on an empty list would produce.
-        ci_cell = " ".join(str(v) for v in ci_list) if ci_list else ""
-        activity_cell = " ".join(str(v) for v in (r.get("activity_meta") or []))
-
-        parts = [name_badge, role, version_cell, ci_cell, activity_cell]
-        # Empty cell => "| |" (single-space) to match the pre-existing rows.
-        # A naive f"| {a} | {b} |" would emit "|  |" for an empty cell.
-        row = "|"
-        for p in parts:
-            row += f" {p} |" if p else " |"
-        lines.append(row)
+        lines.append(_render_repo_row(r))
     return "\n".join(lines)
+
+
+def _render_repo_name_badge(r: dict) -> str:
+    """The shields.io name badge cell linking to the repo."""
+    slug = str(r["slug"])
+    repo_full = str(r["repo"])
+    badge = r.get("badge", {}) or {}
+    label_color = str(badge.get("label_color", "000000"))
+    logo = str(badge.get("logo", "github"))
+    logo_color = badge.get("logo_color")
+    tag_prefix = str(badge.get("tag_prefix", ""))
+
+    # shields.io renders "--" as a single dash in badge label paths, so
+    # both the slug and the tag_prefix must be escaped the same way when
+    # they contain literal dashes. The SoT stores the plain values
+    # ("agent-assembly", "org-profile") — escaping is a rendering concern.
+    shielded_slug = slug.replace("-", "--")
+    shielded_tag = tag_prefix.replace("-", "--")
+
+    logo_frag = f"logo={logo}"
+    if logo_color:
+        logo_frag += f"&logoColor={logo_color}"
+    return (
+        f"[![{slug}](https://img.shields.io/badge/"
+        f"{shielded_slug}-{shielded_tag}-{label_color}?{logo_frag})]"
+        f"(https://github.com/{repo_full})"
+    )
+
+
+def _render_repo_row(r: dict) -> str:
+    """One Repository Status table row for a public repo."""
+    ci_list = r.get("activity_ci") or []
+    # Empty cells render as "| |" (single space between pipes) — matches
+    # the existing README convention and avoids "|  |" (double space)
+    # that a naive " ".join() on an empty list would produce.
+    parts = [
+        _render_repo_name_badge(r),
+        str(r["role"]),
+        " ".join(str(v) for v in (r.get("version") or [])),
+        " ".join(str(v) for v in ci_list) if ci_list else "",
+        " ".join(str(v) for v in (r.get("activity_meta") or [])),
+    ]
+    # Empty cell => "| |" (single-space) to match the pre-existing rows.
+    # A naive f"| {a} | {b} |" would emit "|  |" for an empty cell.
+    row = "|"
+    for p in parts:
+        row += f" {p} |" if p else " |"
+    return row
 
 
 def render_install_channels(channels: list[dict]) -> str:
@@ -677,6 +686,43 @@ def _is_canonical_com(domain: str) -> bool:
     return domain == CANONICAL_APEX or domain.endswith("." + CANONICAL_APEX)
 
 
+def _validate_contact_primary(primary: Any, base: str, seen: set[str]) -> None:
+    """Validate a contact block's required, canonical, unique primary address."""
+    if primary is None:
+        raise SchemaError(f"{base}.primary: required")
+    _validate_email(primary, f"{base}.primary")
+    dom = _domain_of(primary)
+    # Primary-vs-legacy semantics: a canonical AA primary must be `.com`
+    # (never `.dev`); a `.dev` address is only allowed under legacy_aliases.
+    if dom == LEGACY_APEX or dom.endswith("." + LEGACY_APEX):
+        raise SchemaError(
+            f"{base}.primary: {primary!r} is a legacy '.dev' address — a "
+            "canonical primary must be '.com'; put '.dev' under legacy_aliases"
+        )
+    if not _is_canonical_com(dom):
+        raise SchemaError(
+            f"{base}.primary: {primary!r} is not on the canonical "
+            f"'{CANONICAL_APEX}' domain"
+        )
+    if primary.lower() in seen:
+        raise SchemaError(f"{base}.primary: {primary!r} is not unique")
+    seen.add(primary.lower())
+
+
+def _validate_contact_aliases(aliases: Any, base: str, seen: set[str]) -> None:
+    """Validate a contact block's optional, unique legacy_aliases list."""
+    if aliases in (None, ""):
+        aliases = []
+    if not isinstance(aliases, list):
+        raise SchemaError(f"{base}.legacy_aliases: must be a list")
+    for idx, alias in enumerate(aliases):
+        apath = f"{base}.legacy_aliases[{idx}]"
+        _validate_email(alias, apath)
+        if alias.lower() in seen:
+            raise SchemaError(f"{apath}: {alias!r} is not unique")
+        seen.add(alias.lower())
+
+
 def _validate_contacts(contacts: Any, seen: set[str]) -> None:
     if not isinstance(contacts, dict) or not contacts:
         raise SchemaError("contacts: must be a non-empty mapping of audiences")
@@ -684,60 +730,33 @@ def _validate_contacts(contacts: Any, seen: set[str]) -> None:
         base = f"contacts.{audience}"
         if not isinstance(block, dict):
             raise SchemaError(f"{base}: must be a mapping")
-        primary = block.get("primary")
-        if primary is None:
-            raise SchemaError(f"{base}.primary: required")
-        _validate_email(primary, f"{base}.primary")
-        dom = _domain_of(primary)
-        # Primary-vs-legacy semantics: a canonical AA primary must be `.com`
-        # (never `.dev`); a `.dev` address is only allowed under legacy_aliases.
-        if dom == LEGACY_APEX or dom.endswith("." + LEGACY_APEX):
-            raise SchemaError(
-                f"{base}.primary: {primary!r} is a legacy '.dev' address — a "
-                "canonical primary must be '.com'; put '.dev' under legacy_aliases"
-            )
-        if not _is_canonical_com(dom):
-            raise SchemaError(
-                f"{base}.primary: {primary!r} is not on the canonical "
-                f"'{CANONICAL_APEX}' domain"
-            )
-        if primary.lower() in seen:
-            raise SchemaError(f"{base}.primary: {primary!r} is not unique")
-        seen.add(primary.lower())
+        _validate_contact_primary(block.get("primary"), base, seen)
+        _validate_contact_aliases(block.get("legacy_aliases", []), base, seen)
 
-        aliases = block.get("legacy_aliases", [])
-        if aliases in (None, ""):
-            aliases = []
-        if not isinstance(aliases, list):
-            raise SchemaError(f"{base}.legacy_aliases: must be a list")
-        for idx, alias in enumerate(aliases):
-            apath = f"{base}.legacy_aliases[{idx}]"
-            _validate_email(alias, apath)
-            if alias.lower() in seen:
-                raise SchemaError(f"{apath}: {alias!r} is not unique")
-            seen.add(alias.lower())
+
+def _validate_sla_target(block: Any, base: str) -> None:
+    """Validate one SLA target's structured {value, unit} mapping."""
+    if not isinstance(block, dict):
+        raise SchemaError(f"{base}: required structured value/unit mapping")
+    if "value" not in block:
+        raise SchemaError(f"{base}.value: required")
+    if "unit" not in block:
+        raise SchemaError(f"{base}.unit: required (structured, not prose)")
+    val = _as_int(block["value"], f"{base}.value")
+    if val <= 0:
+        raise SchemaError(f"{base}.value: must be a positive integer")
+    unit = block["unit"]
+    if unit not in SLA_UNITS:
+        raise SchemaError(f"{base}.unit: {unit!r} not in {sorted(SLA_UNITS)}")
 
 
 def _validate_sla(security_policy: Any) -> None:
     if not isinstance(security_policy, dict) or not security_policy:
         raise SchemaError("security_policy: must be a non-empty mapping")
     for target in ("acknowledgement", "initial_assessment"):
-        block = security_policy.get(target)
-        base = f"security_policy.{target}"
-        if not isinstance(block, dict):
-            raise SchemaError(f"{base}: required structured value/unit mapping")
-        if "value" not in block:
-            raise SchemaError(f"{base}.value: required")
-        if "unit" not in block:
-            raise SchemaError(f"{base}.unit: required (structured, not prose)")
-        val = _as_int(block["value"], f"{base}.value")
-        if val <= 0:
-            raise SchemaError(f"{base}.value: must be a positive integer")
-        unit = block["unit"]
-        if unit not in SLA_UNITS:
-            raise SchemaError(
-                f"{base}.unit: {unit!r} not in {sorted(SLA_UNITS)}"
-            )
+        _validate_sla_target(
+            security_policy.get(target), f"security_policy.{target}"
+        )
 
 
 def validate_contact_schema(data: dict) -> None:
