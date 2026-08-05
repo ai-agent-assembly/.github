@@ -24,7 +24,7 @@ on:
     inputs:
       needs-json:
         description: >-
-          JSON object of the caller's `needs` context, i.e. ${{ toJSON(needs) }}.
+          JSON object of the caller's `needs` context, i.e. toJSON(needs).
           The gate inspects each job's `result` field.
         required: true
         type: string
