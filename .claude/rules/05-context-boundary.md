@@ -14,6 +14,25 @@ repos.
 - If a task genuinely requires inspecting a secret's value (e.g. debugging an
   auth failure), do it through a mechanism that doesn't echo the value into
   the conversation transcript or any artifact that gets committed.
+- Never run a broad environment enumeration (`env`, `printenv`, `env | grep
+  <pattern>`, etc.) as a diagnostic step near a secret-bearing process —
+  a pattern that matches the *name* still prints the *value* into tool
+  output, which lands in the conversation transcript regardless of intent.
+  When the question is "is this configured?", answer it with a check whose
+  output cannot contain the value itself:
+  - presence only: `[ -n "$VAR" ]` / `test -n "$VAR"`
+  - boolean configured/not-configured, not the content
+  - variable *names* only (`env | cut -d= -f1`), never `name=value` pairs
+  - host/target mappings without the credential half (e.g. print which
+    hosts a `host=key` map covers, never the `key`)
+  - file mode/ownership (`stat`, `ls -l`) instead of reading a credential
+    file's contents
+  - a cryptographic digest of the value, only where that's actually useful
+    and the digest itself isn't sensitive
+  This applies to Dogfooding/QA diagnostics as much as to any other secret-
+  handling step — a session running near a real disposable or production
+  credential must not enumerate environment values "just to check config
+  state."
 
 ## Cross-repo boundaries
 
