@@ -7,6 +7,15 @@ either. These tests pin that invariant for both the repo table and the registry
 projection, and assert the fail-closed default (a repo whose visibility marker
 is missing or malformed is treated as private and dropped, not published).
 
+Also covers the bounded-region replace helper (``replace_bounded``) and the
+``--check`` gate's negative control (AAASM-5756): a repo's generated region
+being entirely removed from a governance doc must make ``--check`` fail
+closed (non-zero exit), not silently pass. The ``--check`` tests never touch
+this repo's own SECURITY.md/README.md/etc. — ``monkeypatch`` redirects the
+generator's module-level path constants to a ``tmp_path`` fixture tree for
+the duration of each test, so there is no live-file mutation risk and no
+cross-test race.
+
 Stdlib-only, matching the generator — run with `python3 -m pytest scripts/` or
 plain `python3 scripts/test_generate_org_profile.py`.
 """
@@ -14,6 +23,9 @@ plain `python3 scripts/test_generate_org_profile.py`.
 from __future__ import annotations
 
 import json
+import re
+
+import pytest
 
 import generate_org_profile as gen
 
@@ -69,6 +81,36 @@ def test_registry_json_excludes_private_repo() -> None:
     projection = json.loads(gen.render_registry_json(data))
     slugs = [r["slug"] for r in projection["repos"]]
     assert slugs == ["agent-assembly"]
+
+
+# ---------------------------------------------------------------------------
+# replace_bounded — malformed-sentinel negative controls
+# ---------------------------------------------------------------------------
+# A malformed sentinel pair must raise loudly (RuntimeError) rather than
+# silently no-op or corrupt the surrounding text — these are the shapes a
+# hand-edit of a generated doc could accidentally produce.
+
+
+def test_replace_bounded_raises_on_missing_end() -> None:
+    text = "before\n<!-- BEGIN GENERATED: foo -->\nold\nafter"
+    with pytest.raises(RuntimeError):
+        gen.replace_bounded(text, "foo", "new")
+
+
+def test_replace_bounded_raises_on_missing_begin() -> None:
+    text = "before\nold\n<!-- END GENERATED: foo -->\nafter"
+    with pytest.raises(RuntimeError):
+        gen.replace_bounded(text, "foo", "new")
+
+
+def test_replace_bounded_raises_on_reversed_sentinels() -> None:
+    # END appears before BEGIN for the same id — malformed/reversed.
+    text = (
+        "before\n<!-- END GENERATED: foo -->\nold\n"
+        "<!-- BEGIN GENERATED: foo -->\nafter"
+    )
+    with pytest.raises(RuntimeError):
+        gen.replace_bounded(text, "foo", "new")
 
 
 if __name__ == "__main__":
