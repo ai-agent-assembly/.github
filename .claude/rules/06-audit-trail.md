@@ -31,6 +31,16 @@ logging system.
   so the dependency order is visible without reconstructing it from branch
   names.
 
+## Owner-only admin-merge exception (AAASM-5858)
+
+When a PR merges via the owner-only admin-merge exception
+(`04-agent-escalation.md`), record it: a PR comment and a Jira comment
+naming the verified identity and stating the exception's condition 9
+(same-identity `REVIEW_REQUIRED`) was the actual blocker. This is the
+one case in this pattern that warrants an explicit note beyond the
+normal start/PR-opened pair, since it departs from the default merge
+path.
+
 ## What this doesn't require
 
 - No separate audit log, dashboard, or tracking file — git + GitHub + Jira
