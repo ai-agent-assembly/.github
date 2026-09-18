@@ -43,6 +43,13 @@ Example: `v0.1.0/AAASM-3941/docs/design_claude_rules`.
   land through a PR, even trivial ones.
 - Never merge your own PR locally and push the merge; let the platform's PR
   merge do it, after required approval.
+- **Owner-only admin-merge exception** (AAASM-5858) — see
+  `04-agent-escalation.md`'s "Owner-only admin-merge exception" section for
+  the full conditions. In short: this default (required independent
+  approval, no self-merge) still applies to every identity except a verified
+  GitHub repo/org **owner**, and even then only to resolve a same-identity
+  REVIEW_REQUIRED deadlock after a completed substantive review — never to
+  bypass a real CI/security/correctness failure.
 
 ## Pull requests
 
